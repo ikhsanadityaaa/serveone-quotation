@@ -1,0 +1,2 @@
+import {NextResponse} from 'next/server';import {getSupabaseServerClient} from '@/lib/supabase-server';export const runtime='nodejs';
+export async function GET(){try{const sb=getSupabaseServerClient();const {data,error}=await sb.from('quotations').select('*').order('created_at',{ascending:false}).limit(5000);if(error)throw error;return NextResponse.json(data||[])}catch(e){return NextResponse.json({error:e instanceof Error?e.message:'Failed'},{status:500})}}
