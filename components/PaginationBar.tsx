@@ -1,4 +1,5 @@
 'use client';
+import UiIcon from './UiIcon';
 
 const PAGE_SIZES=[15,25,50,100,500] as const;
 
@@ -10,6 +11,6 @@ export default function PaginationBar({page,pageSize,total,onPageChange,onPageSi
  return <div className="pagination-bar">
   <div className="pagination-size"><span>Rows</span><select aria-label="Rows per page" value={pageSize} onChange={e=>onPageSizeChange(Number(e.target.value))}>{PAGE_SIZES.map(size=><option key={size} value={size}>{size}</option>)}</select></div>
   <div className="pagination-info">{first}-{last} of {total}</div>
-  <div className="pagination-buttons"><button type="button" className="btn ghost small" disabled={current<=1} onClick={()=>onPageChange(current-1)}>Previous</button><span>Page {current} / {totalPages}</span><button type="button" className="btn ghost small" disabled={current>=totalPages} onClick={()=>onPageChange(current+1)}>Next</button></div>
+  <div className="pagination-buttons"><button type="button" className="icon-only-button" title="Previous" aria-label="Previous page" disabled={current<=1} onClick={()=>onPageChange(current-1)}><UiIcon name="chevronLeft" size={17}/></button><span>Page {current} / {totalPages}</span><button type="button" className="icon-only-button" title="Next" aria-label="Next page" disabled={current>=totalPages} onClick={()=>onPageChange(current+1)}><UiIcon name="chevronRight" size={17}/></button></div>
  </div>
 }

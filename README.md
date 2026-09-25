@@ -44,3 +44,6 @@ For an existing Supabase project, run `supabase/v7-upgrade.sql` once to change n
 
 ## V8 update
 See `UPDATE_V8.md` for the latest PDF/Excel quotation styling and Excel-like Master Data input changes.
+
+## V9 notes
+The PDF renderer was polished for a cleaner professional quotation: corrected logo ratio, compact aligned information rows, reduced red accents, separate Sales PIC / Email / Phone Number, neutral table styling, aligned IDR totals, and Indonesian generation date above the President Director signature. Quotation List also supports confirmed deletion without reusing quotation numbers, and Active controls / pagination / edit actions were standardized in the web UI.

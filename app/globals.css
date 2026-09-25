@@ -178,3 +178,13 @@ button.upload-btn:disabled{opacity:.45;cursor:not-allowed}
 .sheet td:nth-child(2),.sheet td:nth-child(3),.sheet td:nth-child(4),.sheet td:nth-child(5),.sheet td:nth-child(6),.sheet td:nth-child(9),.sheet td:nth-child(10),.sheet td:nth-child(12){text-align:left}
 .sheet td:nth-child(7){text-align:center}
 .sheet td:nth-child(8),.sheet td:nth-child(11){text-align:right}
+
+/* V9: centered Active checkboxes and icon-only table/pagination actions. */
+.active-cell{text-align:center!important;vertical-align:middle!important}
+.active-cell input[type=checkbox]{display:block!important;margin:0 auto!important;width:15px!important;height:15px!important;min-width:15px!important}
+.icon-only-button{display:inline-grid;place-items:center;width:32px;height:32px;padding:0;border:1px solid #cfd8e3;border-radius:8px;background:#fff;color:#536176;cursor:pointer}
+.icon-only-button:hover:not(:disabled){background:#f4f7fb;border-color:#b9c5d2;color:#23344a}
+.icon-only-button:disabled{opacity:.4;cursor:not-allowed}
+.client-actions{justify-content:center}
+.history-actions{display:flex;align-items:center;justify-content:flex-end;gap:5px}
+.pagination-buttons .icon-only-button{width:32px;height:32px}
