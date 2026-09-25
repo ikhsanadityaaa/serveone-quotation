@@ -90,10 +90,6 @@ declare
   v_month date := date_trunc('month', p_quote_date)::date;
   v_number bigint;
 begin
-  if nullif(btrim(p_client_code), '') is null then
-    raise exception 'Client code is required';
-  end if;
-
   insert into public.quotation_sequences (quote_month, last_number)
   values (v_month, 1)
   on conflict (quote_month) do update
@@ -101,21 +97,12 @@ begin
   returning last_number into v_number;
 
   return format(
-    'SMI/%s/%s/%s',
-    upper(btrim(p_client_code)),
+    'SMI/%s/%s',
     to_char(p_quote_date, 'YYYY-MM'),
     lpad(v_number::text, 4, '0')
   );
 end;
 $$;
-
-alter table public.sales_people enable row level security;
-alter table public.uoms enable row level security;
-alter table public.directors enable row level security;
-alter table public.member_directory enable row level security;
-alter table public.client_code_registry enable row level security;
-alter table public.quotation_sequences enable row level security;
-alter table public.quotations enable row level security;
 
 revoke all on function public.allocate_quotation_number(text, date) from public, anon, authenticated;
 grant execute on function public.allocate_quotation_number(text, date) to service_role;

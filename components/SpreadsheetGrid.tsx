@@ -5,8 +5,8 @@ import type {QuoteItem,Uom} from '@/lib/types';
 import {formatUomLabel} from '@/lib/uoms';
 import UiIcon from './UiIcon';
 
-const cols:(keyof QuoteItem)[]=['code','productName','spec','brand','user','leadTime','qty','uom','unitPrice','remarks'];
-const labels=['Code','Item / Description','Specification','Brand','User','Lead Time (Days)','Qty','UOM','Unit Price','Remarks'];
+const cols:(keyof QuoteItem)[]=['productName','spec','brand','user','leadTime','qty','uom','unitPrice','remarks'];
+const labels=['Item / Description','Specification','Brand','User','Lead Time (Days)','Qty','UOM','Unit Price','Remarks'];
 const USER_HISTORY_KEY='serveone-item-users-v1';
 const idr=new Intl.NumberFormat('id-ID');
 const numberValue=(v:string)=>Number(v.replace(/[^0-9-]/g,''))||0;

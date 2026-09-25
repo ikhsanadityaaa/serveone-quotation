@@ -140,3 +140,8 @@ For an existing Supabase project, open Supabase > SQL Editor > New query, paste 
 - `supabase/v7-upgrade.sql` is still required once if the quotation number function has not yet been changed to `YYYY-MM`.
 - Master Data paste from Excel is handled in-browser; no file upload is used.
 - Logo and President Director signature are served from `/public` and committed with the repository.
+
+## V11 deployment
+1. Run `supabase/v11-upgrade.sql` once in Supabase SQL Editor.
+2. Push the source to GitHub.
+3. Let Vercel redeploy.

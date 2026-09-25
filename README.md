@@ -47,3 +47,6 @@ See `UPDATE_V8.md` for the latest PDF/Excel quotation styling and Excel-like Mas
 
 ## V9 notes
 The PDF renderer was polished for a cleaner professional quotation: corrected logo ratio, compact aligned information rows, reduced red accents, separate Sales PIC / Email / Phone Number, neutral table styling, aligned IDR totals, and Indonesian generation date above the President Director signature. Quotation List also supports confirmed deletion without reusing quotation numbers, and Active controls / pagination / edit actions were standardized in the web UI.
+
+## V11 notes
+Run `supabase/v11-upgrade.sql` once before using the new quotation numbering format `SMI/YYYY-MM/0001`.

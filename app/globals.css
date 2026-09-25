@@ -202,3 +202,31 @@ button.upload-btn:disabled{opacity:.45;cursor:not-allowed}
 
 /* Client address is stored once per client and can wrap in Master Data. */
 .client-address-cell{min-width:260px;max-width:420px;white-space:normal;line-height:1.35}
+
+/* V11: no item Code column, centered UOM, numbered sales/history, and neutral action column hover. */
+.sheet td:nth-child(2),.sheet td:nth-child(3),.sheet td:nth-child(4),.sheet td:nth-child(5),.sheet td:nth-child(10){text-align:left!important}
+.sheet td:nth-child(6),.sheet td:nth-child(8){text-align:center!important}
+.sheet td:nth-child(7),.sheet td:nth-child(9),.sheet td:nth-child(10){vertical-align:top!important}
+.sheet td:nth-child(7),.sheet td:nth-child(9),.sheet .amount-cell{text-align:right!important}
+.sheet td:nth-child(8) .uom-search-input{text-align:center!important}
+.quotation-sheet tbody tr:hover td.reload-col{background:inherit!important}
+.quotation-sheet .reload-col .icon-only-button:hover,.quotation-sheet .reload-col .x-button:hover{background:transparent!important;color:inherit!important;border-color:#cfd8e3!important}
+.reload-icon{border-color:transparent!important}
+/* V11 history table column sizing after adding list No and removing item Code. */
+.quotation-sheet td:nth-child(1),.quotation-sheet th:nth-child(1){min-width:48px;width:48px;text-align:center}
+.quotation-sheet td:nth-child(2),.quotation-sheet th:nth-child(2){min-width:170px}
+.quotation-sheet td:nth-child(3),.quotation-sheet th:nth-child(3){min-width:92px}
+.quotation-sheet td:nth-child(4),.quotation-sheet th:nth-child(4){min-width:180px}
+.quotation-sheet td:nth-child(5),.quotation-sheet th:nth-child(5){min-width:150px}
+.quotation-sheet td:nth-child(6),.quotation-sheet th:nth-child(6){min-width:62px;text-align:center}
+.quotation-sheet td:nth-child(7),.quotation-sheet th:nth-child(7){min-width:190px}
+.quotation-sheet td:nth-child(8),.quotation-sheet th:nth-child(8){min-width:210px}
+.quotation-sheet td:nth-child(9),.quotation-sheet th:nth-child(9){min-width:120px}
+.quotation-sheet td:nth-child(10),.quotation-sheet th:nth-child(10){min-width:120px}
+.quotation-sheet td:nth-child(11),.quotation-sheet th:nth-child(11){min-width:105px;text-align:center}
+.quotation-sheet td:nth-child(12),.quotation-sheet th:nth-child(12){min-width:80px}
+.quotation-sheet td:nth-child(13),.quotation-sheet th:nth-child(13){min-width:80px;text-align:center}
+.quotation-sheet td:nth-child(14),.quotation-sheet th:nth-child(14),.quotation-sheet td:nth-child(15),.quotation-sheet th:nth-child(15){min-width:130px}
+.quotation-sheet td:nth-child(16),.quotation-sheet th:nth-child(16){min-width:190px}
+.quotation-sheet tr.quote-group-base td.reload-col,.quotation-sheet tr.quote-group-base:hover td.reload-col{background:#fff!important}
+.quotation-sheet tr.quote-group-alt td.reload-col,.quotation-sheet tr.quote-group-alt:hover td.reload-col{background:#f3f6fa!important}
