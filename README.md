@@ -32,3 +32,7 @@ SUPABASE_SECRET_KEY=sb_secret_xxxxx
 ```
 
 Never expose `SUPABASE_SECRET_KEY` using a `NEXT_PUBLIC_` variable.
+
+## V6 UI/data behavior
+
+UOM is a fixed application catalogue sourced from `UOM STANDART2.xlsx`, so it is not managed in Supabase. Member Database and Quotation List support 15/25/50/100/500 pagination. Database tables use zebra rows like the Items grid, Sales PIC scrolls after roughly 10 rows, and delete actions use trash icons.
