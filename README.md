@@ -35,4 +35,9 @@ Never expose `SUPABASE_SECRET_KEY` using a `NEXT_PUBLIC_` variable.
 
 ## V6 UI/data behavior
 
-UOM is a fixed application catalogue sourced from `UOM STANDART2.xlsx`, so it is not managed in Supabase. Member Database and Quotation List support 15/25/50/100/500 pagination. Database tables use zebra rows like the Items grid, Sales PIC scrolls after roughly 10 rows, and delete actions use trash icons.
+UOM is a fixed application catalogue sourced from `UOM STANDART2.xlsx`, so it is not managed in Supabase. Client Data and Quotation List support 15/25/50/100/500 pagination. Master Data tables use zebra rows like the Items grid, Sales PIC scrolls after roughly 10 rows, and delete actions use X icons.
+
+## V7 Master Data model
+The Master Data page now groups Client Data by Client. Client Code is entered once per Client and each Client can have up to 100 Attention/Address records. Sales PIC is managed separately and all dropdowns are alphabetically sorted.
+
+For an existing Supabase project, run `supabase/v7-upgrade.sql` once to change new quotation numbers to `YYYY-MM`.

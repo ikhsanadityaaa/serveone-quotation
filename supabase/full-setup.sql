@@ -103,7 +103,7 @@ begin
   return format(
     'SMI/%s/%s/%s',
     upper(btrim(p_client_code)),
-    to_char(p_quote_date, 'YYYY.MM'),
+    to_char(p_quote_date, 'YYYY-MM'),
     lpad(v_number::text, 4, '0')
   );
 end;

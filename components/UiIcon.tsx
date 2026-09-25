@@ -6,7 +6,7 @@ export default function UiIcon({name,size=18}:{name:IconName;size?:number}){
  if(name==='download')return <svg {...p}><path d="M12 4v12m0 0 4.5-4.5M12 16l-4.5-4.5"/><path d="M5 20h14"/></svg>;
  if(name==='refresh')return <svg {...p}><path d="M19 8a7.5 7.5 0 1 0 .2 7.7"/><path d="M19 3v5h-5"/></svg>;
  if(name==='duplicate')return <svg {...p}><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>;
- if(name==='remove')return <svg {...p}><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>;
+ if(name==='remove')return <svg {...p}><path d="M6 6l12 12M18 6 6 18"/></svg>;
  if(name==='search')return <svg {...p}><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4 4"/></svg>;
  if(name==='document')return <svg {...p}><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h4M9 12h6M9 16h6"/></svg>;
  if(name==='excel')return <svg {...p}><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v5h4M8 12l4 5m0-5-4 5"/></svg>;

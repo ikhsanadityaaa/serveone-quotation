@@ -131,3 +131,6 @@ Then redeploy.
 - Excel/PDF generated quotations are created on demand and are not stored as files in Supabase.
 - Quotation snapshots and quotation list data remain stored in Supabase.
 - Multiple users can work simultaneously; quotation numbering is allocated atomically by PostgreSQL.
+
+## V7 database upgrade
+For an existing Supabase project, open Supabase > SQL Editor > New query, paste the contents of `supabase/v7-upgrade.sql`, and click Run once. This changes only the month separator for newly allocated quotation numbers from `YYYY.MM` to `YYYY-MM`.
