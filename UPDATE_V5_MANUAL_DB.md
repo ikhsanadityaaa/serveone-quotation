@@ -9,6 +9,6 @@
 - Sales PIC supports adding N rows at once.
 - UOM supports adding N rows at once.
 - President Director name/title supports table editing.
-- Signature is embedded at `public/signature-mr-herry.png`.
+- 
 - Items supports adding N rows at once.
 - Existing quotation numbering, reload logic, history, filters, Excel export and PDF export are preserved.

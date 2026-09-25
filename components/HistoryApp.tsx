@@ -23,7 +23,7 @@ export default function HistoryApp(){
  const salesOptions=useMemo(()=>[...new Set(baseForSales.map(r=>r.sales_name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:'base'})),[baseForSales]);
  const clientOptions=useMemo(()=>[...new Set(baseForClients.map(r=>r.client_name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:'base'})),[baseForClients]);
  const filtered=useMemo(()=>rows.filter(r=>passSearch(r)&&(sales.length===0||sales.includes(r.sales_name))&&(clients.length===0||clients.includes(r.client_name))),[rows,searchTerms.join('|'),sales.join('|'),clients.join('|')]);
- const summary=useMemo(()=>({quotes:filtered.length,amount:filtered.reduce((s,r)=>s+Number(r.total_amount||0),0),clients:new Set(filtered.map(r=>r.client_name).filter(Boolean)).size}),[filtered]);
+ const summary=useMemo(()=>({quotes:filtered.length,amount:filtered.reduce((sum,r)=>sum+(r.content?.items||[]).reduce((s,item)=>s+(Number(item.qty)||0)*(Number(item.unitPrice)||0),0),0),clients:new Set(filtered.map(r=>r.client_name).filter(Boolean)).size}),[filtered]);
  const totalPages=Math.max(1,Math.ceil(filtered.length/pageSize)),safePage=Math.min(page,totalPages),pageQuotes=filtered.slice((safePage-1)*pageSize,safePage*pageSize);
  const tableRows=useMemo(()=>pageQuotes.flatMap<HistoryItemRow>((quote,groupIndex)=>quote.content?.items?.length?quote.content.items.map((item,itemIndex)=>({quote,item,itemIndex,groupIndex})):[{quote,item:null,itemIndex:-1,groupIndex}]),[pageQuotes]);
  useEffect(()=>{if(page>totalPages)setPage(totalPages)},[page,totalPages]);

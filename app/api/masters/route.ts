@@ -15,7 +15,7 @@ export async function GET(){
   const err=[sales,members,codes,directors].find(x=>x.error)?.error;if(err)throw err;
   const cm=new Map((codes.data||[]).map((x:any)=>[x.client_name,x.client_code]));
   const alpha=(a:string,b:string)=>a.localeCompare(b,undefined,{sensitivity:'base'});
-  const memberRows=(members.data||[]).map((x:any)=>({...x,client_code:cm.get(x.op_unit_name)||cm.get(x.client_name)||''})).sort((a:any,b:any)=>alpha(a.op_unit_name,b.op_unit_name)||alpha(a.member_name,b.member_name));
+  const addressMap=new Map<string,string>();for(const x of (members.data||[])){const key=String(x.op_unit_name||x.client_name||'');if(key&&!addressMap.get(key)&&String(x.address||'').trim())addressMap.set(key,String(x.address).trim())}const memberRows=(members.data||[]).map((x:any)=>({...x,address:addressMap.get(String(x.op_unit_name||x.client_name||''))||'',client_code:cm.get(x.op_unit_name)||cm.get(x.client_name)||''})).sort((a:any,b:any)=>alpha(a.op_unit_name,b.op_unit_name)||alpha(a.member_name,b.member_name));
   const salesRows=(sales.data||[]).sort((a:any,b:any)=>alpha(a.name,b.name));
   const directorRows=(directors.data||[]).map((x:any)=>({...x,signature_path:'/signature-mr-herry.png'})).sort((a:any,b:any)=>alpha(a.name,b.name));
   return NextResponse.json({sales:salesRows,members:memberRows,directors:directorRows,uoms:STANDARD_UOMS});

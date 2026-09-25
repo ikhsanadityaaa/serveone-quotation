@@ -30,16 +30,16 @@ export async function quotationXlsx(q:StoredQuotation){
  const left:[string,string][]=[['Quotation No. :',q.quotation_no],['Date :',c.quotationDate],['Validity :',`${c.validityDays} Days`],['RFQ No. :',c.rfqNo||'-'],['Sales PIC :',c.salesName||'-'],['Email :',c.salesEmail||'-'],['Phone Number :',c.salesPhone||'-']];
  const right:[string,string][]=[['Attention :',c.attention||'-'],['Client :',c.clientName||'-'],['Address :',c.address||'-']];
  let lr=7;
- left.forEach(([k,v],i)=>{const r=lr+i;ws.mergeCells(r,1,r,2);ws.mergeCells(r,3,r,5);ws.getCell(r,1).value=k;ws.getCell(r,3).value=v;ws.getCell(r,1).font={bold:true,color:{argb:'FF4A5565'}};ws.getCell(r,1).alignment={vertical:'top',horizontal:'right'};ws.getCell(r,3).alignment={vertical:'top',wrapText:true};ws.getRow(r).height=17});
- right.forEach(([k,v],i)=>{const r=lr+i;ws.mergeCells(r,7,r,8);ws.mergeCells(r,9,r,12);ws.getCell(r,7).value=k;ws.getCell(r,9).value=v;ws.getCell(r,7).font={bold:true,color:{argb:'FF4A5565'}};ws.getCell(r,7).alignment={vertical:'top',horizontal:'right'};ws.getCell(r,9).alignment={vertical:'top',wrapText:true};if(k.startsWith('Address'))ws.getRow(r).height=40});
+ left.forEach(([k,v],i)=>{const r=lr+i;ws.mergeCells(r,1,r,2);ws.mergeCells(r,3,r,5);ws.getCell(r,1).value=k;ws.getCell(r,3).value=v;ws.getCell(r,1).font={bold:true,color:{argb:'FF4A5565'}};ws.getCell(r,1).alignment={vertical:'top',horizontal:'left'};ws.getCell(r,3).alignment={vertical:'top',wrapText:true};ws.getRow(r).height=14});
+ right.forEach(([k,v],i)=>{const r=lr+i;ws.mergeCells(r,7,r,8);ws.mergeCells(r,9,r,12);ws.getCell(r,7).value=k;ws.getCell(r,9).value=v;ws.getCell(r,7).font={bold:true,color:{argb:'FF4A5565'}};ws.getCell(r,7).alignment={vertical:'top',horizontal:'left'};ws.getCell(r,9).alignment={vertical:'top',wrapText:true};if(k.startsWith('Address'))ws.getRow(r).height=26});
  for(let r=7;r<=13;r++){for(let col=1;col<=5;col++)ws.getCell(r,col).border={bottom:{style:'hair',color:{argb:GRID}}};for(let col=7;col<=12;col++)ws.getCell(r,col).border={bottom:{style:'hair',color:{argb:GRID}}}}
 
- const headRow=16;const heads=['No','Code','Item / Description','Specification','Brand','User','Lead Time (Days)','Qty','UOM','Unit Price','Amount','Remarks'];
- heads.forEach((h,i)=>{const cell=ws.getCell(headRow,i+1);cell.value=h;cell.font={bold:true,color:{argb:TEXT},size:8};cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF2F4F7'}};cell.alignment={horizontal:'center',vertical:'middle',wrapText:true};cell.border={top:{style:'medium',color:{argb:SERVEONE_RED}},bottom:{style:'thin',color:{argb:GRID}}}});ws.getRow(headRow).height=27;
+ const headRow=15;const heads=['No','Code','Item / Description','Specification','Brand','User','Lead Time (Days)','Qty','UOM','Unit Price','Amount','Remarks'];
+ heads.forEach((h,i)=>{const cell=ws.getCell(headRow,i+1);cell.value=h;cell.font={bold:true,color:{argb:TEXT},size:9};cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF2F4F7'}};cell.alignment={horizontal:'center',vertical:'middle',wrapText:true};cell.border={top:{style:'medium',color:{argb:SERVEONE_RED}},bottom:{style:'thin',color:{argb:GRID}}}});ws.getRow(headRow).height=25;
  c.items.forEach((it,idx)=>{const r=headRow+1+idx;const vals=[idx+1,it.code,it.productName,it.spec,it.brand,it.user,it.leadTime,it.qty,it.uom,it.unitPrice,it.qty*it.unitPrice,it.remarks];
   vals.forEach((v,i)=>{const cell=ws.getCell(r,i+1);cell.value=v as any;cell.border={bottom:{style:'thin',color:{argb:GRID}}};cell.alignment={vertical:'top',wrapText:true};if(idx%2)cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:ZEBRA}};
    if(i<=5)cell.alignment={vertical:'top',horizontal:'left',wrapText:true};if(i===6)cell.alignment={vertical:'top',horizontal:'center',wrapText:true};if(i===7)cell.alignment={vertical:'top',horizontal:'right'};if(i===8)cell.alignment={vertical:'top',horizontal:'left'};if(i===9||i===10){cell.numFmt='"IDR"* #,##0';cell.alignment={vertical:'top',horizontal:'right'}}
-  });ws.getRow(r).height=30;
+  });ws.getRow(r).height=26;
  });
  let r=headRow+Math.max(c.items.length,1)+2;const subtotal=subtotalAmount(c),vat=vatAmount(c),grand=totalAmount(c);
  const totals=[['Total Amount',subtotal],['Total VAT '+c.vatRate+'%',vat],['Total Amount Include VAT',grand]] as const;
@@ -63,19 +63,19 @@ export async function quotationPdf(q:StoredQuotation){
  const red=rgb(.78,0,.24),text=rgb(.12,.14,.17),muted=rgb(.35,.39,.45),line=rgb(.84,.86,.89),headerFill=rgb(.955,.96,.968),zebra=rgb(.982,.985,.99);
  let page=pdf.addPage(A4);let ctx:PdfCtx={page,regular,bold};
 
- // Header: preserve the original Serveone logo ratio. Red is used only as a restrained accent.
+ // Header. Keep the logo ratio intact and use Serveone red only as a restrained accent.
  const logo=await signatureData('/serveone-logo.png');
- if(logo){try{const img=await pdf.embedPng(logo.buffer);page.drawImage(img,{x:margin,y:793,width:155,height:23.5})}catch{}}
- drawLines(ctx,[c.companyName],300,807,12.5,263,true,'right',text);
- drawLines(ctx,pdfWrap(regular,c.companyAddress,6.7,263),300,789,6.7,263,false,'right',muted);
- page.drawLine({start:{x:margin,y:763},end:{x:563,y:763},thickness:1.25,color:red});
- drawLines(ctx,['QUOTATION'],margin,737,16,531,true,'center',text);
+ if(logo){try{const img=await pdf.embedPng(logo.buffer);page.drawImage(img,{x:margin,y:795,width:155,height:23.5})}catch{}}
+ drawLines(ctx,[c.companyName],298,808,13,265,true,'right',text);
+ drawLines(ctx,pdfWrap(regular,c.companyAddress,6.5,265),298,790,6.5,265,false,'right',muted);
+ page.drawLine({start:{x:margin,y:764},end:{x:563,y:764},thickness:1.15,color:red});
+ drawLines(ctx,['QUOTATION'],margin,741,15.2,531,true,'center',text);
 
- // Compact two-column information section with aligned colons and no background boxes.
- const leftLabelX=35,leftColonX=112,leftValueX=121,leftValueW=150;
- const rightLabelX=301,rightColonX=366,rightValueX=376,rightValueW=187;
- const drawPair=(label:string,value:string,xLabel:number,xColon:number,xValue:number,y:number,valueWidth:number,size=7.2)=>{
-   drawLines(ctx,[label],xLabel,y,size,xColon-xLabel-6,true,'right',muted);
+ // Compact two-column information section. Labels are left aligned; colons stay on one visual axis.
+ const leftLabelX=36,leftColonX=109,leftValueX=118,leftValueW=160;
+ const rightLabelX=304,rightColonX=365,rightValueX=374,rightValueW=189;
+ const drawPair=(label:string,value:string,xLabel:number,xColon:number,xValue:number,y:number,valueWidth:number,size=7)=>{
+   drawLines(ctx,[label],xLabel,y,size,xColon-xLabel-5,true,'left',muted);
    drawLines(ctx,[':'],xColon-2,y,size,8,false,'center',muted);
    const lines=pdfWrap(regular,value||'-',size,valueWidth);
    drawLines(ctx,lines,xValue,y,size,valueWidth,false,'left',text);
@@ -90,19 +90,15 @@ export async function quotationPdf(q:StoredQuotation){
    ['Email',c.salesEmail||'-'],
    ['Phone Number',c.salesPhone||'-']
  ];
- let ly=701;
- for(const [label,value] of leftInfo){drawPair(label,value,leftLabelX,leftColonX,leftValueX,ly,leftValueW);ly-=13.2}
- const rightInfo:[string,string][]=[
-   ['Attention',c.attention||'-'],
-   ['Client',c.clientName||'-'],
-   ['Address',c.address||'-']
- ];
- let ry=701;
- for(const [label,value] of rightInfo){const lines=drawPair(label,value,rightLabelX,rightColonX,rightValueX,ry,rightValueW);ry-=Math.max(14,lines*9)}
- page.drawLine({start:{x:291,y:704},end:{x:291,y:611},thickness:.45,color:line});
+ let ly=711;
+ for(const [label,value] of leftInfo){drawPair(label,value,leftLabelX,leftColonX,leftValueX,ly,leftValueW);ly-=10.7}
+ const rightInfo:[string,string][]=[['Attention',c.attention||'-'],['Client',c.clientName||'-'],['Address',c.address||'-']];
+ let ry=711;
+ for(const [label,value] of rightInfo){const lines=drawPair(label,value,rightLabelX,rightColonX,rightValueX,ry,rightValueW);ry-=Math.max(11.5,lines*8.2)}
+ page.drawLine({start:{x:291,y:713},end:{x:291,y:642},thickness:.4,color:line});
 
- // Item table
- let y=595;
+ // Item table is the visual priority: larger font and less whitespace above it.
+ let y=627;
  const cols=[
   {k:'no',h:'No',w:18,a:'left'},
   {k:'code',h:'Code',w:32,a:'left'},
@@ -119,21 +115,21 @@ export async function quotationPdf(q:StoredQuotation){
  ] as const;
  const tableW=cols.reduce((sum,col)=>sum+col.w,0);
  const drawHeader=()=>{
-   page.drawRectangle({x:margin,y:y-22,width:tableW,height:22,color:headerFill});
-   page.drawLine({start:{x:margin,y},end:{x:margin+tableW,y},thickness:1.1,color:red});
-   page.drawLine({start:{x:margin,y:y-22},end:{x:margin+tableW,y:y-22},thickness:.6,color:line});
+   page.drawRectangle({x:margin,y:y-24,width:tableW,height:24,color:headerFill});
+   page.drawLine({start:{x:margin,y},end:{x:margin+tableW,y},thickness:1.05,color:red});
+   page.drawLine({start:{x:margin,y:y-24},end:{x:margin+tableW,y:y-24},thickness:.6,color:line});
    let x=margin;
-   for(const col of cols){drawLines(ctx,col.h.split('\n'),x,y-8,5.45,col.w,true,'center',text);x+=col.w}
-   y-=22;
+   for(const col of cols){drawLines(ctx,col.h.split('\n'),x,y-9,6.15,col.w,true,'center',text);x+=col.w}
+   y-=24;
  };
  drawHeader();
  const cellLines=(font:PDFFont,v:string,size:number,w:number)=>pdfWrap(font,v,size,Math.max(8,w-4));
  for(let i=0;i<c.items.length;i++){
   const it=c.items[i];
   const values:any={no:String(i+1),code:it.code||'',item:it.productName||'',spec:it.spec||'',brand:it.brand||'',user:it.user||'',lead:it.leadTime||'',qty:String(it.qty||''),uom:it.uom||'',price:it.unitPrice||0,amount:(it.qty||0)*(it.unitPrice||0),remarks:it.remarks||''};
-  const textCols=cols.map(col=>col.a==='currency'?[]:cellLines(regular,String(values[col.k]??''),5.4,col.w));
+  const textCols=cols.map(col=>col.a==='currency'?[]:cellLines(regular,String(values[col.k]??''),6.05,col.w));
   const lineCount=Math.max(1,...textCols.map(lines=>lines.length));
-  const rowH=Math.max(18,lineCount*7+5);
+  const rowH=Math.max(20,lineCount*8+5);
   if(y-rowH<150){page=pdf.addPage(A4);ctx={page,regular,bold};y=805;drawHeader()}
   if(i%2)page.drawRectangle({x:margin,y:y-rowH,width:tableW,height:rowH,color:zebra});
   page.drawLine({start:{x:margin,y:y-rowH},end:{x:margin+tableW,y:y-rowH},thickness:.45,color:line});
@@ -141,38 +137,37 @@ export async function quotationPdf(q:StoredQuotation){
   for(let ci=0;ci<cols.length;ci++){
     const col=cols[ci];
     if(col.a==='currency'){
-      drawLines(ctx,['IDR'],x+2,y-10,5.2,col.w-4,false,'left',muted);
-      drawLines(ctx,[money(values[col.k])],x+2,y-10,5.2,col.w-4,false,'right',text);
-    }else drawLines(ctx,textCols[ci],x+2,y-9,5.4,col.w-4,false,col.a as 'left'|'center'|'right',text);
+      drawLines(ctx,['IDR'],x+2,y-11,5.8,col.w-4,false,'left',muted);
+      drawLines(ctx,[money(values[col.k])],x+2,y-11,5.8,col.w-4,false,'right',text);
+    }else drawLines(ctx,textCols[ci],x+2,y-10,6.05,col.w-4,false,col.a as 'left'|'center'|'right',text);
     x+=col.w;
   }
   y-=rowH;
  }
 
- // Totals: moved left and aligned like currency columns.
- y-=16;
+ // Center the complete totals block under the table so it sits exactly below the table rule.
+ y-=14;
  const subtotal=subtotalAmount(c),vat=vatAmount(c),grand=totalAmount(c);
- const totalX=268,totalRight=563,labelW=154,idrX=449,amountX=478,amountW=85;
+ const blockW=330,totalX=margin+(tableW-blockW)/2,totalRight=totalX+blockW,labelW=178,idrX=totalX+210,amountX=totalX+242,amountW=88;
  const totals=[['Total Amount',subtotal],['Total VAT '+c.vatRate+'%',vat],['Total Amount Include VAT',grand]] as const;
  for(let i=0;i<totals.length;i++){
    const [label,value]=totals[i];
    page.drawLine({start:{x:totalX,y:y-13},end:{x:totalRight,y:y-13},thickness:.45,color:line});
-   drawLines(ctx,[label],totalX,y,7.8,labelW,true,'left',text);
-   drawLines(ctx,['IDR'],idrX,y,7.8,24,false,'left',muted);
-   drawLines(ctx,[money(value)],amountX,y,7.8,amountW,true,'right',text);
+   drawLines(ctx,[label],totalX,y,8,labelW,true,'left',text);
+   drawLines(ctx,['IDR'],idrX,y,8,28,false,'left',muted);
+   drawLines(ctx,[money(value)],amountX,y,8,amountW,true,'right',text);
    y-=18;
  }
 
- y-=12;
+ y-=10;
  drawLines(ctx,['Notes'],margin,y,8.3,250,true,'left',text);
  y-=14;
  for(let i=0;i<c.notes.length;i++){
-   const lines=pdfWrap(regular,`${i+1}. ${c.notes[i]}`,7.1,310);
-   drawLines(ctx,lines,margin,y,7.1,310,false,'left',text);
+   const lines=pdfWrap(regular,`${i+1}. ${c.notes[i]}`,7.1,320);
+   drawLines(ctx,lines,margin,y,7.1,320,false,'left',text);
    y-=Math.max(12,lines.length*9);
  }
 
- // Signature date is the actual generation date in Asia/Jakarta.
  const signatureTop=Math.max(95,y-4);
  drawLines(ctx,[`Jakarta, ${indonesiaToday()}`],365,signatureTop,7.6,180,false,'center',text);
  drawLines(ctx,['President Director,'],365,signatureTop-15,7.6,180,false,'center',text);

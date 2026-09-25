@@ -188,3 +188,17 @@ button.upload-btn:disabled{opacity:.45;cursor:not-allowed}
 .client-actions{justify-content:center}
 .history-actions{display:flex;align-items:center;justify-content:flex-end;gap:5px}
 .pagination-buttons .icon-only-button{width:32px;height:32px}
+
+/* V10: keep RFQ and Sales PIC controls aligned even when the Sales PIC shows email/phone. */
+.quotation-info .form-grid{align-items:stretch}
+.quotation-info .form-grid>label,.quotation-info .form-grid>.field{height:100%}
+.quotation-info .form-grid>label>input,.quotation-info .form-grid>.field>.select-trigger,.quotation-info .suffix-input{min-height:58px;height:100%}
+.quotation-info .suffix-input input{height:100%}
+.quotation-info .select-value{display:grid;gap:3px;align-content:center}
+.quotation-info .select-value small{display:block;color:var(--muted);font-size:10px;font-weight:400;line-height:1.25}
+
+/* Searchable UOM uses a white datalist input while the stored/displayed value remains only the UOM code. */
+.sheet td .uom-search-input{background:#fff!important;text-transform:uppercase}
+
+/* Client address is stored once per client and can wrap in Master Data. */
+.client-address-cell{min-width:260px;max-width:420px;white-space:normal;line-height:1.35}
