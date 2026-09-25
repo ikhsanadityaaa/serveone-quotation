@@ -134,3 +134,9 @@ Then redeploy.
 
 ## V7 database upgrade
 For an existing Supabase project, open Supabase > SQL Editor > New query, paste the contents of `supabase/v7-upgrade.sql`, and click Run once. This changes only the month separator for newly allocated quotation numbers from `YYYY.MM` to `YYYY-MM`.
+
+## V8 notes
+- No new Supabase migration is required for V8.
+- `supabase/v7-upgrade.sql` is still required once if the quotation number function has not yet been changed to `YYYY-MM`.
+- Master Data paste from Excel is handled in-browser; no file upload is used.
+- Logo and President Director signature are served from `/public` and committed with the repository.

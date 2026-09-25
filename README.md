@@ -41,3 +41,6 @@ UOM is a fixed application catalogue sourced from `UOM STANDART2.xlsx`, so it is
 The Master Data page now groups Client Data by Client. Client Code is entered once per Client and each Client can have up to 100 Attention/Address records. Sales PIC is managed separately and all dropdowns are alphabetically sorted.
 
 For an existing Supabase project, run `supabase/v7-upgrade.sql` once to change new quotation numbers to `YYYY-MM`.
+
+## V8 update
+See `UPDATE_V8.md` for the latest PDF/Excel quotation styling and Excel-like Master Data input changes.
