@@ -230,3 +230,25 @@ button.upload-btn:disabled{opacity:.45;cursor:not-allowed}
 .quotation-sheet td:nth-child(16),.quotation-sheet th:nth-child(16){min-width:190px}
 .quotation-sheet tr.quote-group-base td.reload-col,.quotation-sheet tr.quote-group-base:hover td.reload-col{background:#fff!important}
 .quotation-sheet tr.quote-group-alt td.reload-col,.quotation-sheet tr.quote-group-alt:hover td.reload-col{background:#f3f6fa!important}
+
+/* V13: validation, loading overlay, compact quotation inputs, merged history groups, and batch master data. */
+.loading-overlay{position:fixed;inset:0;z-index:500;display:grid;place-items:center;background:rgba(244,247,251,.42);backdrop-filter:blur(1px);pointer-events:all}
+.loading-toast{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #d9e1eb;border-radius:14px;padding:13px 18px;box-shadow:0 16px 40px rgba(20,34,54,.2);color:#26364c}
+.loading-spinner{width:18px;height:18px;border:2px solid #d9e1eb;border-top-color:var(--blue);border-radius:50%;animation:spin .75s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.required-error>input,.required-error .suffix-input input,.required-error .suffix-input span,.field-error .select-trigger{border-color:#d62f45!important;box-shadow:0 0 0 3px rgba(214,47,69,.11)!important}
+.required-error,.field-error>label{color:#b42335!important}
+.quotation-info .form-grid>label>input,.quotation-info .suffix-input,.quotation-info .suffix-input input{min-height:38px!important;height:38px!important}
+.quotation-info .rfq-field>input,.quotation-info .form-grid>.field>.select-trigger{min-height:58px!important;height:58px!important}
+.select-value>span,.plain-value-label textarea,.stack .select-trigger{font-weight:400!important;color:#243247}
+.history-table th,.db-table th,.sheet th{text-align:center!important;vertical-align:middle!important}
+.quotation-sheet .merged-cell{vertical-align:middle!important}
+.quotation-sheet .reload-col{position:static!important;min-width:88px!important;width:88px!important;text-align:center!important;white-space:nowrap}
+.quotation-sheet .history-actions{justify-content:center!important}
+.quotation-sheet tbody tr:hover td.reload-col{background:inherit!important}
+.readonly-remark{white-space:normal;min-width:170px;line-height:1.35}
+.center-cell{text-align:center!important}
+.batch-client-modal{width:min(1120px,96vw)!important}
+.batch-scroll{max-height:520px;overflow:auto;border:1px solid #e2e8f0;border-radius:10px}
+.batch-scroll .db-table{min-width:980px}.batch-scroll .db-table th{position:sticky;top:0;z-index:3}.batch-scroll .db-table td{padding:0}.batch-scroll .db-table input[type=text],.batch-scroll .db-table input:not([type]){border:0;border-radius:0;box-shadow:none;min-height:38px;background:transparent}.batch-scroll .db-table input:focus{box-shadow:inset 0 0 0 2px var(--blue)}.batch-scroll .db-table input[type=checkbox]{margin:10px 14px;width:auto}
+.reorderable-note{grid-template-columns:24px 1fr auto!important}.note-actions{display:flex;align-items:center;gap:4px}.note-actions .note-move{width:28px;height:28px}.note-actions .note-delete{width:28px;height:28px;display:grid;place-items:center}
+.client-group-table td,.client-group-table th{vertical-align:middle!important}

@@ -50,3 +50,10 @@ The PDF renderer was polished for a cleaner professional quotation: corrected lo
 
 ## V11 notes
 Run `supabase/v11-upgrade.sql` once before using the new quotation numbering format `SMI/YYYY-MM/0001`.
+
+## V12 quotation output
+
+V12 improves multi-page quotation output. Continuation PDF pages repeat the Serveone company header and item-table header. Currency is shown in the item column headers (`Unit Price (IDR)` / `Amount (IDR)`) rather than repeated in every item cell.
+
+## V13 UX update
+V13 adds merged quotation rows in Quotation List, read-only remarks, required-field validation and auto-scroll, sortable Notes, faster Master Data loading, center-page loading indicators, and batch Client/Attention entry with duplicate-safe upsert behavior. Client Code is no longer required in Master Data. See `UPDATE_V13.md`.
