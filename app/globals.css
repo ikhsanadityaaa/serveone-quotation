@@ -376,13 +376,9 @@ button.upload-btn:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:720px){.company-settings-section .panel-title{align-items:flex-start;gap:12px}.company-settings-section .panel-title>.btn{width:100%}.serveone-info-table th:first-child,.serveone-info-table td:first-child{width:38%}}
 
 
-/* V25: editable issuer address on Create Quotation + clean native checkbox focus. */
+/* Checkbox focus cleanup + read-only issuer on Create Quotation. */
 input[type=checkbox]{padding:0!important;box-shadow:none!important;outline:none!important;accent-color:var(--blue)}
 input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!important;box-shadow:none!important}
 .company-card{display:flex;flex-direction:column;gap:10px}
 .company-card>h2{margin-bottom:0}
-.company-card>.issuer-address-label{margin-top:2px}
-.company-card>.issuer-address-label textarea{min-height:88px;line-height:1.45;background:#fff}
-.issuer-address-actions{display:flex;justify-content:flex-end}
-.issuer-address-actions .btn{min-width:120px}
-@media(max-width:720px){.issuer-address-actions .btn{width:100%}}
+.issuer-readonly{display:grid;gap:6px;margin-top:2px}.issuer-readonly>span{font-size:12px;font-weight:700;color:#46566b}.issuer-readonly>p{margin:0!important;padding:10px 11px;border:1px solid #dfe5ec;border-radius:8px;background:#f8fafc;color:#556274!important;line-height:1.5;white-space:pre-wrap;min-height:72px}

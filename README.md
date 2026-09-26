@@ -69,3 +69,8 @@ The Rows-per-page selector is positioned immediately to the left of the Previous
 - Serveone Information now uses a table layout consistent with President Director.
 - Columns: Company and Serveone Address only; no Action column.
 - Save Address remains available in the section header.
+
+
+## V27
+- The Issuer section on Create Quotation is read-only.
+- Serveone company address is edited and saved only from Master Data.
