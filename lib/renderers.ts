@@ -43,8 +43,8 @@ export async function quotationXlsx(q:StoredQuotation){
   });ws.getRow(r).height=28;
  });
  let r=headRow+Math.max(c.items.length,1)+2;const subtotal=subtotalAmount(c),vat=vatAmount(c),grand=totalAmount(c);
- const totals=[['Total Amount',subtotal],['Total VAT '+c.vatRate+'%',vat],['Total Amount Include VAT',grand]] as const;
- totals.forEach(([label,value],i)=>{const rr=r+i;ws.mergeCells(rr,7,rr,8);ws.getCell(rr,7).value=label;ws.getCell(rr,7).font={bold:true,color:{argb:TEXT}};ws.getCell(rr,7).alignment={horizontal:'left',vertical:'middle'};ws.getCell(rr,9).value='IDR';ws.getCell(rr,9).font={color:{argb:MUTED}};ws.getCell(rr,9).alignment={horizontal:'center'};ws.mergeCells(rr,10,rr,11);ws.getCell(rr,10).value=value;ws.getCell(rr,10).numFmt='#,##0';ws.getCell(rr,10).font={bold:true,color:{argb:TEXT}};ws.getCell(rr,10).alignment={horizontal:'right'};for(let cc=7;cc<=11;cc++)ws.getCell(rr,cc).border={top:{style:'thin',color:{argb:GRID}},bottom:{style:'thin',color:{argb:GRID}},left:{style:'thin',color:{argb:GRID}},right:{style:'thin',color:{argb:GRID}}}});
+ const totals=[['Total Amount',subtotal],['Total VAT '+c.vatRate+'%',vat],['Total Amount Including VAT',grand]] as const;
+ totals.forEach(([label,value],i)=>{const rr=r+i;ws.mergeCells(rr,7,rr,8);ws.getCell(rr,7).value=label;ws.getCell(rr,7).font={bold:true,color:{argb:TEXT}};ws.getCell(rr,7).alignment={horizontal:'left',vertical:'middle'};ws.getCell(rr,9).value='IDR';ws.getCell(rr,9).font={bold:true,color:{argb:TEXT}};ws.getCell(rr,9).alignment={horizontal:'center'};ws.mergeCells(rr,10,rr,11);ws.getCell(rr,10).value=value;ws.getCell(rr,10).numFmt='#,##0';ws.getCell(rr,10).font={bold:true,color:{argb:TEXT}};ws.getCell(rr,10).alignment={horizontal:'right'};for(let cc=7;cc<=11;cc++)ws.getCell(rr,cc).border={top:{style:'thin',color:{argb:GRID}},bottom:{style:'thin',color:{argb:GRID}},left:{style:'thin',color:{argb:GRID}},right:{style:'thin',color:{argb:GRID}}}});
  r+=5;ws.mergeCells(r,1,r,6);ws.getCell(r,1).value='Notes';ws.getCell(r,1).font={bold:true,color:{argb:TEXT}};c.notes.forEach((n,i)=>{r++;ws.mergeCells(r,1,r,7);ws.getCell(r,1).value=`${i+1}. ${n}`;ws.getCell(r,1).alignment={wrapText:true,vertical:'top'}});
  const signRow=Math.max(r+2,headRow+c.items.length+8);ws.mergeCells(signRow,8,signRow,11);ws.getCell(signRow,8).value=`Jakarta, ${indonesiaToday()}`;ws.getCell(signRow,8).alignment={horizontal:'center'};ws.mergeCells(signRow+1,8,signRow+1,11);ws.getCell(signRow+1,8).value='President Director,';ws.getCell(signRow+1,8).alignment={horizontal:'center'};
  const sig=await signatureData(c.directorSignaturePath||'/signature-mr-herry.png');if(sig){const id=wb.addImage({buffer:sig.buffer as any,extension:sig.kind==='png'?'png':'jpeg'});ws.addImage(id,{tl:{col:7.7,row:signRow+1.5},ext:{width:160,height:70}})}
@@ -149,12 +149,12 @@ export async function quotationPdf(q:StoredQuotation){
  y-=12;if(y<120){beginContinuationPage();y-=8}
  const subtotal=subtotalAmount(c),vat=vatAmount(c),grand=totalAmount(c);
  const totalW=285,totalX=margin+tableW-totalW,rowH=19,labelW=166,currencyW=34,amountW=85;
- const totals=[['Total Amount',subtotal],['Total VAT '+c.vatRate+'%',vat],['Total Amount Include VAT',grand]] as const;
+ const totals=[['Total Amount',subtotal],['Total VAT '+c.vatRate+'%',vat],['Total Amount Including VAT',grand]] as const;
  for(let i=0;i<totals.length;i++){
    const [label,value]=totals[i],yy=y-i*rowH;
    page.drawLine({start:{x:totalX,y:yy-rowH},end:{x:totalX+totalW,y:yy-rowH},thickness:.45,color:line});
    drawLines(ctx,[label],totalX+4,yy-12.5,7.7,labelW-8,true,'left',text);
-   drawLines(ctx,['IDR'],totalX+labelW,yy-12.5,7.4,currencyW,false,'center',muted);
+   drawLines(ctx,['IDR'],totalX+labelW,yy-12.5,7.8,currencyW,true,'center',text);
    drawLines(ctx,[money(value)],totalX+labelW+currencyW+4,yy-12.5,7.8,amountW-8,true,'right',text);
  }
  y-=rowH*3+14;

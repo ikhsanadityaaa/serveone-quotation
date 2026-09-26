@@ -252,3 +252,11 @@ button.upload-btn:disabled{opacity:.45;cursor:not-allowed}
 .batch-scroll .db-table{min-width:980px}.batch-scroll .db-table th{position:sticky;top:0;z-index:3}.batch-scroll .db-table td{padding:0}.batch-scroll .db-table input[type=text],.batch-scroll .db-table input:not([type]){border:0;border-radius:0;box-shadow:none;min-height:38px;background:transparent}.batch-scroll .db-table input:focus{box-shadow:inset 0 0 0 2px var(--blue)}.batch-scroll .db-table input[type=checkbox]{margin:10px 14px;width:auto}
 .reorderable-note{grid-template-columns:24px 1fr auto!important}.note-actions{display:flex;align-items:center;gap:4px}.note-actions .note-move{width:28px;height:28px}.note-actions .note-delete{width:28px;height:28px;display:grid;place-items:center}
 .client-group-table td,.client-group-table th{vertical-align:middle!important}
+
+/* V15: wide-screen item grid, dynamic Sales/RFQ height, and scalable batch editors. */
+.sheet-canvas{grid-template-columns:minmax(1120px,1fr) 76px;width:100%;min-width:1196px}
+.sheet-canvas .sheet{width:100%;min-width:1120px}
+.quotation-info .form-grid>.sales-field>.select-trigger,.quotation-info .rfq-field>input{min-height:38px!important;height:38px!important}
+.quotation-info.has-sales .form-grid>.sales-field>.select-trigger,.quotation-info.has-sales .rfq-field>input{min-height:58px!important;height:58px!important}
+.batch-pager{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0;color:#657489;font-size:12px}.batch-pager>div{display:flex;align-items:center;gap:8px}.batch-pager b{min-width:62px;text-align:center;color:#34445a}.batch-client-modal .batch-scroll{max-height:460px}.batch-client-modal .db-table{min-width:980px}
+@media(max-width:1300px){.sheet-canvas{grid-template-columns:minmax(1050px,1fr) 76px;min-width:1126px}.sheet-canvas .sheet{min-width:1050px}}
