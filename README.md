@@ -44,5 +44,10 @@ See `BUILD_INSTRUCTIONS.md` for local setup and deployment.
 - Client Edit button is centered and turns blue on hover.
 - Attention count in Client Data is centered.
 
-### V21 pagination layout
+### V22 pagination layout
 The Rows-per-page selector is positioned immediately to the left of the Previous/Next page controls across Client Data and Quotation List.
+
+## V23 UI update
+- All destructive X actions use the same custom confirmation dialog: “Are You sure want to delete this data?” with Yes / Cancel.
+- Quotation List bulk Delete uses the same confirmation dialog.
+- Edit Client > Attention has row checkboxes, select-all, and bulk Delete above the table.

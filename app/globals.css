@@ -262,8 +262,12 @@ button.upload-btn:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:1300px){.sheet-canvas{grid-template-columns:minmax(1050px,1fr) 76px;min-width:1126px}.sheet-canvas .sheet{min-width:1050px}}
 
 /* V16: filled Create Quotation fields, staged filters, and selectable quotation history. */
-.filled-field>input,.filled-field textarea,.filled-field .select-trigger,.filled-field .suffix-input input,.filled-field .suffix-input span{background:#fff8cf!important}
-.required-error.filled-field>input,.required-error.filled-field .suffix-input input,.required-error.filled-field .suffix-input span,.field-error.filled-field .select-trigger{background:#fff2f2!important}
+/* V22: populated Create Quotation fields use a yellow outline only; keep field interiors white. */
+.filled-field>input,.filled-field textarea,.filled-field .select-trigger{background:#fff!important;border-color:#e6bf3f!important;box-shadow:0 0 0 2px rgba(230,191,63,.22)!important}
+.filled-field .suffix-input{border-radius:8px;box-shadow:0 0 0 2px rgba(230,191,63,.22)!important}
+.filled-field .suffix-input input,.filled-field .suffix-input span{background:#fff!important;border-color:#e6bf3f!important}
+.required-error.filled-field>input,.required-error.filled-field .suffix-input,.field-error.filled-field .select-trigger{box-shadow:0 0 0 2px rgba(197,51,67,.18)!important}
+.required-error.filled-field>input,.required-error.filled-field .suffix-input input,.required-error.filled-field .suffix-input span,.field-error.filled-field .select-trigger{background:#fff!important;border-color:var(--red)!important}
 .staged-filter-pop{width:310px;padding:10px}
 .staged-filter-pop .filter-list{max-height:300px;margin-bottom:8px}
 .staged-filter-pop .select-all-row{border-bottom:1px solid var(--line2);padding-bottom:9px;margin-bottom:3px}
@@ -350,3 +354,13 @@ button.upload-btn:disabled{opacity:.45;cursor:not-allowed}
 .client-group-table td:nth-child(4){text-align:center!important;vertical-align:middle!important}
 .client-actions .edit-button{margin:0;display:inline-grid;place-items:center}
 .client-actions .edit-button:hover:not(:disabled){background:#eaf2ff!important;border-color:#9fc0ff!important;color:#2563eb!important}
+
+/* V23: consistent delete confirmation + multi-select Attention deletion. */
+.confirm-backdrop{position:fixed;inset:0;z-index:900;display:grid;place-items:center;padding:20px;background:rgba(18,28,45,.34);backdrop-filter:blur(2px)}
+.confirm-dialog{width:min(430px,calc(100vw - 32px));display:grid;grid-template-columns:46px 1fr;gap:14px;background:#fff;border:1px solid #dfe6ef;border-radius:16px;padding:20px;box-shadow:0 24px 64px rgba(25,39,63,.28)}
+.confirm-icon{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#fff1f2;color:#c6283d;font-size:22px;font-weight:800;border:1px solid #f2c7cd}
+.confirm-copy h3{margin:1px 0 6px;font-size:17px;color:#243247}.confirm-copy p{margin:0;color:#3f4d61;line-height:1.45}.confirm-copy small{display:block;margin-top:7px;color:#7a8799;line-height:1.4;white-space:pre-line}
+.confirm-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:9px;margin-top:4px}.confirm-actions .btn{min-width:92px}.confirm-yes{background:#c62f43!important;border-color:#c62f43!important;color:#fff!important}.confirm-yes:hover{background:#aa2235!important;border-color:#aa2235!important}
+.attention-toolbar{display:flex;align-items:center;gap:10px}.attention-delete{display:inline-flex;align-items:center;gap:7px;height:36px;background:var(--blue);border-color:var(--blue);color:#fff}.attention-delete:hover:not(:disabled){background:var(--blue2);border-color:var(--blue2)}.attention-delete:disabled{opacity:.38;cursor:not-allowed}
+.attention-edit-table .attention-select-col{width:44px!important;min-width:44px!important;text-align:center!important;vertical-align:middle!important;padding:0!important}.attention-edit-table .attention-select-col input[type=checkbox]{display:block;margin:0 auto;width:15px;height:15px}.attention-edit-table th:nth-child(2),.attention-edit-table td:nth-child(2){width:54px;min-width:54px;text-align:center!important}.attention-edit-table th:nth-child(4),.attention-edit-table td:nth-child(4){width:70px;min-width:70px;text-align:center!important}
+@media(max-width:720px){.attention-head{align-items:flex-start}.attention-toolbar{width:100%;flex-wrap:wrap;justify-content:flex-end}}
