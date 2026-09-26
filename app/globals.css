@@ -134,7 +134,7 @@ button.upload-btn:disabled{opacity:.45;cursor:not-allowed}
 .row-delete:hover,.note-delete:hover{background:#fdecef;color:#b42332}
 .note-row .note-delete{font-size:inherit}
 .pagination-bar{display:flex;align-items:center;justify-content:flex-end;gap:14px;padding:11px 2px 0;color:var(--muted);font-size:12px}
-.pagination-size{display:flex;align-items:center;gap:7px}
+.pagination-controls{display:flex;align-items:center;gap:10px}.pagination-size{display:flex;align-items:center;gap:7px}
 .pagination-size select{width:76px;min-width:76px;padding:6px 24px 6px 8px;border-radius:8px}
 .pagination-info{min-width:95px;text-align:center;font-variant-numeric:tabular-nums}
 .pagination-buttons{display:flex;align-items:center;gap:8px}
@@ -143,7 +143,7 @@ button.upload-btn:disabled{opacity:.45;cursor:not-allowed}
 .sales-scroll .db-table{min-width:720px}
 .database-grid-no-uom{grid-template-columns:minmax(0,1fr)}
 .sheet td select[title]{cursor:help}
-@media(max-width:720px){.pagination-bar{align-items:stretch;flex-wrap:wrap;justify-content:space-between}.pagination-buttons{width:100%;justify-content:space-between}}
+@media(max-width:720px){.pagination-bar{align-items:stretch;flex-wrap:wrap;justify-content:space-between}.pagination-controls{width:100%;justify-content:flex-end;flex-wrap:wrap}.pagination-buttons{justify-content:flex-end}}
 
 /* V7: grouped Master Data, search popover, compact UOM display, and cleaner quotation form. */
 .quotation-info input,.quotation-info textarea,.quotation-info select,.quotation-info .select-trigger,.quotation-info .suffix-input span{font-weight:400!important}
@@ -344,3 +344,9 @@ button.upload-btn:disabled{opacity:.45;cursor:not-allowed}
 
 /* V18 master-data cleanup */
 .master-grid th:last-child,.master-grid td:last-child{text-align:center!important;vertical-align:middle!important}.client-actions{justify-content:center}.attention-scroll{max-height:560px}.client-modal{width:min(980px,96vw)}
+
+/* V19: center client Attention and polish Edit action. */
+.client-group-table th:nth-child(4),
+.client-group-table td:nth-child(4){text-align:center!important;vertical-align:middle!important}
+.client-actions .edit-button{margin:0;display:inline-grid;place-items:center}
+.client-actions .edit-button:hover:not(:disabled){background:#eaf2ff!important;border-color:#9fc0ff!important;color:#2563eb!important}

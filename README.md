@@ -38,3 +38,11 @@ See `BUILD_INSTRUCTIONS.md` for local setup and deployment.
 - Active columns are hidden from all Master Data tables.
 - Action X buttons are centered and turn red on hover.
 - Edit Client supports up to 1,000 Attention rows, so existing clients with hundreds of Attention entries load completely.
+
+
+## V19 UI polish
+- Client Edit button is centered and turns blue on hover.
+- Attention count in Client Data is centered.
+
+### V21 pagination layout
+The Rows-per-page selector is positioned immediately to the left of the Previous/Next page controls across Client Data and Quotation List.

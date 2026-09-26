@@ -9,6 +9,17 @@ import LoadingOverlay from './LoadingOverlay';
 import type {QuoteItem,StoredQuotation} from '@/lib/types';
 
 const idr=new Intl.NumberFormat('id-ID');
+
+const compactAmount=(value:number)=>{
+ if(!Number.isFinite(value)) return '0';
+ const abs=Math.abs(value);
+ const sign=value<0?'-':'';
+ const fmt=(n:number)=>{const rounded=Math.round(n*100)/100;return String(rounded).replace(/\.0+$/,'').replace(/(\.\d*[1-9])0+$/,'$1')};
+ if(abs>=1_000_000_000) return `${sign}${fmt(abs/1_000_000_000)}B`;
+ if(abs>=1_000_000) return `${sign}${fmt(abs/1_000_000)}M`;
+ if(abs>=1_000) return `${sign}${fmt(abs/1_000)}K`;
+ return `${sign}${idr.format(abs)}`;
+};
 type HistoryItemRow={quote:StoredQuotation;item:QuoteItem|null;itemIndex:number;groupIndex:number;rowSpan:number};
 
 export default function HistoryApp(){
@@ -42,7 +53,7 @@ export default function HistoryApp(){
  return <>
  <LoadingOverlay show={loading} label={loadingLabel}/>
  <header className="page-head"><div><h1>Quotation List</h1><p>Search, filter, reload, print, or delete quotation records.</p></div><div className="head-actions"><button className="btn ghost icon-btn" onClick={load}><UiIcon name="refresh"/>Refresh</button></div></header>{msg&&<div className="notice">{msg}</div>}
- <section className="summary-grid"><div><small>Clients</small><b>{summary.clients}</b></div><div><small>Quotes</small><b>{summary.quotes}</b></div><div><small>Amount</small><b>IDR {idr.format(summary.amount)}</b></div></section>
+ <section className="summary-grid"><div><small>Clients</small><b>{summary.clients}</b></div><div><small>Quotes</small><b>{summary.quotes}</b></div><div><small>Amount</small><b>IDR {compactAmount(summary.amount)}</b></div></section>
  <section className="panel"><div className="list-tools aligned-list-tools"><div className="filters toolbar-row"><SearchPopover value={search} onChange={setSearch} onSearch={applySearch} onClear={()=>{setSearch('');setAppliedSearch('');setPage(1)}}/><MultiCheckFilter label="Sales PIC" values={salesOptions} selected={sales} onChange={v=>{setSales(v);setPage(1)}}/><MultiCheckFilter label="Client" values={clientOptions} selected={clients} onChange={v=>{setClients(v);setPage(1)}}/>{(sales.length||clients.length||appliedSearch)&&<button className="btn ghost toolbar-btn" onClick={clear}>Clear Filters</button>}<div className="list-toolbar-spacer"/><button className="selection-action-button selection-delete" title="Delete selected" aria-label="Delete selected quotations" disabled={!selectedQuotes.length} onClick={()=>void deleteSelected()}><UiIcon name="trash" size={20}/></button><button className="selection-action-button selection-print" title="Print selected" aria-label="Print selected quotations" disabled={!selectedQuotes.length} onClick={()=>void printSelected()}><UiIcon name="print" size={20}/></button><button className="btn excel icon-btn list-download" onClick={download}><UiIcon name="download"/>Download Excel</button></div></div>
  <div className="history-wrap quotation-sheet-wrap"><table className="history-table item-history quotation-sheet selection-history"><thead><tr><th className="select-col"><input type="checkbox" aria-label="Select quotations on this page" checked={allPageSelected} onChange={togglePage}/></th><th className="reload-col">Reload</th><th className="rowno">No</th><th>Quotation No.</th><th>Date</th><th>Client</th><th>Sales PIC</th><th className="rowno">Item No</th><th>Item / Description</th><th>Specification</th><th>Brand</th><th>User</th><th>Lead Time (Days)</th><th>Qty</th><th>UOM</th><th>Unit Price</th><th>Amount</th><th>Remarks</th></tr></thead><tbody>{tableRows.length?tableRows.map(({quote,item,itemIndex,groupIndex,rowSpan})=>{const first=itemIndex===0;return <tr key={`${quote.id}-${itemIndex}`} className={`${groupIndex%2?'quote-group-alt':'quote-group-base'} ${first?'quote-group-start':''}`}>
  {first&&<><td className="select-col merged-cell" rowSpan={rowSpan}><input type="checkbox" aria-label={`Select ${quote.quotation_no}`} checked={selectedIds.has(quote.id)} onChange={()=>toggleSelected(quote.id)}/></td><td className="reload-col merged-cell" rowSpan={rowSpan}><button className="icon-only-button reload-icon" title="Muat Ulang" aria-label={`Muat Ulang ${quote.quotation_no}`} onClick={()=>router.push(`/?reload=${quote.id}`)}><UiIcon name="refresh" size={16}/></button></td><td className="rowno merged-cell" rowSpan={rowSpan}>{(safePage-1)*pageSize+groupIndex+1}</td><td className="merged-cell" rowSpan={rowSpan}><b>{quote.quotation_no}</b></td><td className="merged-cell" rowSpan={rowSpan}>{quote.quotation_date}</td><td className="merged-cell" rowSpan={rowSpan}>{quote.client_name}</td><td className="merged-cell" rowSpan={rowSpan}>{quote.sales_name}</td></>}
