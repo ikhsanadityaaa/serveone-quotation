@@ -59,3 +59,8 @@ The Rows-per-page selector is positioned immediately to the left of the Previous
 - Existing deployments must run `supabase/v24-upgrade.sql` once.
 - Qty cannot be negative, including pasted values.
 - Add Rows counters reject negative input.
+
+
+## V25
+- Create Quotation > Issuer address is directly editable and can be saved to Supabase.
+- Checkbox focus no longer shows an extra blue border/box.
