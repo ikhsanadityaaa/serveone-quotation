@@ -31,7 +31,7 @@ async function saveClient(body:any,originalClient?:string){
  const client=clean(body.client),address=clean(body.address),attentions=(body.attentions||[]) as AttentionInput[];
  if(!client)throw new Error('Client is required.');
  const unique=new Map<string,AttentionInput>();
- for(const a of attentions.slice(0,100)){const name=clean(a.name);if(name&&!unique.has(norm(name)))unique.set(norm(name),{...a,name})}
+ for(const a of attentions.slice(0,1000)){const name=clean(a.name);if(name&&!unique.has(norm(name)))unique.set(norm(name),{...a,name})}
  if(!unique.size)throw new Error('At least one Attention is required.');
  const key=originalClient||client;
  const {data:existing,error:ee}=await sb.from('member_directory').select('id,member_name').eq('op_unit_name',key);if(ee)throw ee;

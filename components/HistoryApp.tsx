@@ -14,7 +14,7 @@ type HistoryItemRow={quote:StoredQuotation;item:QuoteItem|null;itemIndex:number;
 export default function HistoryApp(){
  const router=useRouter();
  const [rows,setRows]=useState<StoredQuotation[]>([]),[search,setSearch]=useState(''),[appliedSearch,setAppliedSearch]=useState(''),[sales,setSales]=useState<string[]>([]),[clients,setClients]=useState<string[]>([]),[loading,setLoading]=useState(true),[loadingLabel,setLoadingLabel]=useState('Loading Quotation List...'),[msg,setMsg]=useState('');
- const [page,setPage]=useState(1),[pageSize,setPageSize]=useState(25),[selectedIds,setSelectedIds]=useState<Set<string>>(new Set());
+ const [page,setPage]=useState(1),[pageSize,setPageSize]=useState(15),[selectedIds,setSelectedIds]=useState<Set<string>>(new Set());
  async function load(){setLoadingLabel('Loading Quotation List...');setLoading(true);try{const r=await fetch('/api/history',{cache:'no-store'}),j=await r.json();if(r.ok)setRows(j);else setMsg(j.error||'Failed to load')}finally{setLoading(false)}}
  useEffect(()=>{void load()},[]);
  const searchTerms=useMemo(()=>appliedSearch.split(/\r?\n/).map(x=>x.trim().toLowerCase()).filter(Boolean),[appliedSearch]);

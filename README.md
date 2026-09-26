@@ -31,3 +31,10 @@ See `BUILD_INSTRUCTIONS.md` for local setup and deployment.
 - Larger blue Print/Delete toolbar buttons on Quotation List.
 - Filter popovers open to the right so they do not overlap the sidebar.
 - Specification cells are explicitly left-aligned.
+
+
+## V18 master-data UI
+- Client Data and Quotation List default pagination: 15 rows.
+- Active columns are hidden from all Master Data tables.
+- Action X buttons are centered and turn red on hover.
+- Edit Client supports up to 1,000 Attention rows, so existing clients with hundreds of Attention entries load completely.
