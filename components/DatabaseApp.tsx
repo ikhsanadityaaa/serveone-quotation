@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect,useMemo,useState} from 'react';
+import {useEffect,useMemo,useRef,useState} from 'react';
 import type {ClipboardEvent} from 'react';
 import type {Director,SalesPerson} from '@/lib/types';
 import {COMPANY_NAME} from '@/lib/constants';
@@ -14,8 +14,12 @@ type ClientGroup={client:string;address:string;active:boolean;attentions:Attenti
 type SalesDraftRow={name:string;email:string;phone:string;active:boolean};
 type BatchClientRow={client:string;address:string;attention:string;active:boolean};
 
-const BATCH_MAX=5000;
+const CLIENT_BATCH_MAX=3000;
+const SALES_BATCH_MAX=5000;
 const BATCH_PAGE_SIZE=100;
+const CLIENT_BATCH_ROW_HEIGHT=39;
+const CLIENT_BATCH_OVERSCAN=16;
+const CLIENT_BATCH_VIEWPORT=460;
 const ATTENTION_MAX=1000;
 const alpha=(a:string,b:string)=>a.localeCompare(b,undefined,{sensitivity:'base'});
 const norm=(v:string)=>v.trim().toLocaleLowerCase();
@@ -24,7 +28,7 @@ const emptySales=():SalesDraftRow=>({name:'',email:'',phone:'',active:true});
 const emptyBatch=():BatchClientRow=>({client:'',address:'',attention:'',active:true});
 const tenAttention=()=>Array.from({length:10},emptyAttention);
 const tenSales=()=>Array.from({length:10},emptySales);
-const tenBatch=()=>Array.from({length:10},emptyBatch);
+const clientBatchRows=()=>Array.from({length:CLIENT_BATCH_MAX},emptyBatch);
 const padAttention=(rows:AttentionRow[],minimum=10)=>[
  ...rows.map(x=>({...x})),
  ...Array.from({length:Math.max(0,minimum-rows.length)},emptyAttention),
@@ -82,9 +86,10 @@ export default function DatabaseApp(){
  const [attentionRowsToAdd,setAttentionRowsToAdd]=useState(10);
 
  const [batchModal,setBatchModal]=useState(false);
- const [batchRows,setBatchRows]=useState<BatchClientRow[]>(tenBatch());
- const [batchRowsToAdd,setBatchRowsToAdd]=useState(10);
- const [batchPage,setBatchPage]=useState(1);
+ const [batchRows,setBatchRows]=useState<BatchClientRow[]>(clientBatchRows());
+ const [batchScrollTop,setBatchScrollTop]=useState(0);
+ const batchScrollRaf=useRef<number|null>(null);
+ const batchPendingScroll=useRef(0);
 
  const [salesModal,setSalesModal]=useState(false);
  const [salesDraft,setSalesDraft]=useState<SalesDraftRow[]>(tenSales());
@@ -194,15 +199,17 @@ export default function DatabaseApp(){
   try{const r=await fetch('/api/clients',{method:'DELETE',headers:{'content-type':'application/json'},body:JSON.stringify({client:c.client})}),j=await r.json();if(!r.ok)throw new Error(j.error||'Delete failed');setClients(x=>x.filter(v=>norm(v.client)!==norm(c.client)));setMsg(`${c.client} deleted.`)}catch(e){setMsg(e instanceof Error?e.message:'Delete failed')}finally{setBusy(false)}
  }
 
- function patchBatch(i:number,key:keyof BatchClientRow,v:string|boolean){setBatchRows(rows=>rows.map((r,j)=>j===i?{...r,[key]:v}:r))}
- function addBatchRows(){
-  setBatchRows(rows=>{const count=Math.min(BATCH_MAX-rows.length,Math.max(1,batchRowsToAdd));const next=[...rows,...Array.from({length:Math.max(0,count)},emptyBatch)];setBatchPage(Math.ceil(next.length/BATCH_PAGE_SIZE));return next});
- }
- function removeBatchRow(i:number){setBatchRows(rows=>rows.length<=10?rows.map((r,j)=>j===i?emptyBatch():r):rows.filter((_,j)=>j!==i))}
+ function patchBatch(i:number,key:keyof BatchClientRow,v:string|boolean){setBatchRows(rows=>{const next=[...rows];next[i]={...next[i],[key]:v};return next})}
+ function removeBatchRow(i:number){setBatchRows(rows=>{const next=[...rows];next[i]=emptyBatch();return next})}
  function pasteBatch(e:ClipboardEvent<HTMLInputElement>,rowIndex:number,startCol:0|1|2){
   const raw=e.clipboardData.getData('text/plain');if(!raw.includes('\t')&&!raw.includes('\n'))return;e.preventDefault();
   const matrix=raw.replace(/\r/g,'').split('\n').filter((x,i,a)=>x||i<a.length-1).map(x=>x.split('\t'));
-  setBatchRows(current=>{const rows=current.map(x=>({...x}));while(rows.length<Math.min(BATCH_MAX,rowIndex+matrix.length))rows.push(emptyBatch());matrix.forEach((line,ri)=>{const target=rowIndex+ri;if(target>=BATCH_MAX)return;line.forEach((value,ci)=>{const col=startCol+ci;if(col===0)rows[target].client=value;if(col===1)rows[target].address=value;if(col===2)rows[target].attention=value})});return rows});
+  setBatchRows(current=>{const rows=[...current];matrix.forEach((line,ri)=>{const target=rowIndex+ri;if(target>=CLIENT_BATCH_MAX)return;const updated={...rows[target]};line.forEach((value,ci)=>{const col=startCol+ci;if(col===0)updated.client=value;if(col===1)updated.address=value;if(col===2)updated.attention=value});rows[target]=updated});return rows});
+ }
+ function handleBatchScroll(top:number){
+  batchPendingScroll.current=top;
+  if(batchScrollRaf.current!==null)return;
+  batchScrollRaf.current=requestAnimationFrame(()=>{setBatchScrollTop(batchPendingScroll.current);batchScrollRaf.current=null});
  }
  async function saveBatch(){
   const rows=batchRows.filter(r=>r.client.trim()||r.address.trim()||r.attention.trim());
@@ -213,7 +220,7 @@ export default function DatabaseApp(){
    const r=await fetch('/api/clients',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({batch:rows})}),j=await r.json();
    if(!r.ok)throw new Error(j.error||'Batch add failed');
    setClients(current=>mergeBatchClients(current,rows));
-   setBatchModal(false);setBatchRows(tenBatch());setBatchPage(1);
+   setBatchModal(false);setBatchRows(clientBatchRows());setBatchScrollTop(0);
    setMsg(`Batch saved: ${j.inserted||0} Attention added, ${j.updated||0} updated, ${j.skipped||0} duplicate(s) skipped.`);
   }catch(e){setMsg(e instanceof Error?e.message:'Batch add failed')}finally{setBusy(false)}
  }
@@ -230,13 +237,13 @@ export default function DatabaseApp(){
  }
  function patchSalesDraft(i:number,key:keyof SalesDraftRow,value:string|boolean){setSalesDraft(rows=>rows.map((r,j)=>j===i?{...r,[key]:value}:r))}
  function addSalesRows(){
-  setSalesDraft(rows=>{const count=Math.min(BATCH_MAX-rows.length,Math.max(1,salesRowsToAdd));const next=[...rows,...Array.from({length:Math.max(0,count)},emptySales)];setSalesBatchPage(Math.ceil(next.length/BATCH_PAGE_SIZE));return next});
+  setSalesDraft(rows=>{const count=Math.min(SALES_BATCH_MAX-rows.length,Math.max(1,salesRowsToAdd));const next=[...rows,...Array.from({length:Math.max(0,count)},emptySales)];setSalesBatchPage(Math.ceil(next.length/BATCH_PAGE_SIZE));return next});
  }
  function removeSalesDraft(i:number){setSalesDraft(rows=>rows.length<=10?rows.map((r,j)=>j===i?emptySales():r):rows.filter((_,j)=>j!==i))}
  function pasteSales(e:ClipboardEvent<HTMLInputElement>,rowIndex:number,startCol:0|1|2){
   const raw=e.clipboardData.getData('text/plain');if(!raw.includes('\t')&&!raw.includes('\n'))return;e.preventDefault();
   const matrix=raw.replace(/\r/g,'').split('\n').filter((x,i,a)=>x||i<a.length-1).map(x=>x.split('\t'));
-  setSalesDraft(current=>{const rows=current.map(x=>({...x}));while(rows.length<Math.min(BATCH_MAX,rowIndex+matrix.length))rows.push(emptySales());matrix.forEach((line,ri)=>{const target=rowIndex+ri;if(target>=BATCH_MAX)return;line.forEach((value,ci)=>{const col=startCol+ci;if(col===0)rows[target].name=value;if(col===1)rows[target].email=value;if(col===2)rows[target].phone=value})});return rows});
+  setSalesDraft(current=>{const rows=current.map(x=>({...x}));while(rows.length<Math.min(SALES_BATCH_MAX,rowIndex+matrix.length))rows.push(emptySales());matrix.forEach((line,ri)=>{const target=rowIndex+ri;if(target>=SALES_BATCH_MAX)return;line.forEach((value,ci)=>{const col=startCol+ci;if(col===0)rows[target].name=value;if(col===1)rows[target].email=value;if(col===2)rows[target].phone=value})});return rows});
  }
  async function addSales(){
   const rows=salesDraft.filter(r=>r.name.trim()||r.email.trim()||r.phone.trim());
@@ -264,8 +271,12 @@ export default function DatabaseApp(){
   try{const r=await fetch('/api/database',{method:'DELETE',headers:{'content-type':'application/json'},body:JSON.stringify({entity,id})});if(!r.ok)throw new Error('Delete failed');if(entity==='sales')setSales(x=>x.filter(v=>v.id!==id));else setDirectors(x=>x.filter(v=>v.id!==id))}catch(e){setMsg(e instanceof Error?e.message:'Delete failed')}finally{setBusy(false)}
  }
 
- const batchStart=(Math.max(1,batchPage)-1)*BATCH_PAGE_SIZE;
- const batchVisible=batchRows.slice(batchStart,batchStart+BATCH_PAGE_SIZE);
+ const batchFirst=Math.max(0,Math.floor(batchScrollTop/CLIENT_BATCH_ROW_HEIGHT)-CLIENT_BATCH_OVERSCAN);
+ const batchWindowSize=Math.ceil(CLIENT_BATCH_VIEWPORT/CLIENT_BATCH_ROW_HEIGHT)+(CLIENT_BATCH_OVERSCAN*2);
+ const batchEnd=Math.min(CLIENT_BATCH_MAX,batchFirst+batchWindowSize);
+ const batchVisible=batchRows.slice(batchFirst,batchEnd);
+ const batchTopSpacer=batchFirst*CLIENT_BATCH_ROW_HEIGHT;
+ const batchBottomSpacer=Math.max(0,(CLIENT_BATCH_MAX-batchEnd)*CLIENT_BATCH_ROW_HEIGHT);
  const salesStart=(Math.max(1,salesBatchPage)-1)*BATCH_PAGE_SIZE;
  const salesVisible=salesDraft.slice(salesStart,salesStart+BATCH_PAGE_SIZE);
 
@@ -275,7 +286,7 @@ export default function DatabaseApp(){
   {msg&&<div className="notice">{msg}</div>}
 
   <section className="panel db-section">
-   <div className="panel-title"><div><h2>Client Data</h2><p>Client and Address are stored once. Attention can be added individually or in batch.</p></div><div className="client-toolbar"><div className="member-search"><UiIcon name="search"/><input placeholder="Search client / attention" value={search} onChange={e=>{setSearch(e.target.value);setPage(1)}}/></div><button className="btn ghost" onClick={()=>{setBatchRows(tenBatch());setBatchRowsToAdd(10);setBatchPage(1);setBatchModal(true)}}>Batch Add</button><button className="btn primary" onClick={openNewClient}>+ Add Client</button></div></div>
+   <div className="panel-title"><div><h2>Client Data</h2><p>Client and Address are stored once. Attention can be added individually or in batch.</p></div><div className="client-toolbar"><div className="member-search"><UiIcon name="search"/><input placeholder="Search client / attention" value={search} onChange={e=>{setSearch(e.target.value);setPage(1)}}/></div><button className="btn ghost" onClick={()=>{setBatchRows(clientBatchRows());setBatchScrollTop(0);setBatchModal(true)}}>Batch Add</button><button className="btn primary" onClick={openNewClient}>+ Add Client</button></div></div>
    <div className="history-wrap"><table className="db-table master-grid client-group-table zebra-grid"><thead><tr><th className="rowno">No</th><th>Client</th><th>Address</th><th>Attention</th><th>Action</th></tr></thead><tbody>{paged.length?paged.map((c,i)=><tr key={c.client}><td className="rowno">{(safePage-1)*pageSize+i+1}</td><td>{c.client}</td><td className="client-address-cell">{c.address||''}</td><td>{c.attentions.filter(a=>a.active).length}</td><td className="client-actions action-center"><button className="icon-only-button edit-button" title="Edit client" aria-label={`Edit ${c.client}`} onClick={()=>openEditClient(c)}><UiIcon name="edit" size={16}/></button><button className="x-button" title="Delete client" onClick={()=>requestDelete(()=>deleteClient(c),`${c.client} and all of its Attention data will be deleted.`)}><UiIcon name="remove" size={15}/></button></td></tr>):<tr><td colSpan={5} className="empty-table">No Client Data found.</td></tr>}</tbody></table></div>
    <PaginationBar page={safePage} pageSize={pageSize} total={filtered.length} onPageChange={setPage} onPageSizeChange={s=>{setPageSize(s);setPage(1)}}/>
   </section>
@@ -288,9 +299,9 @@ export default function DatabaseApp(){
 
   {clientModal&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setClientModal(false)}}><div className="modal-card client-modal"><div className="modal-head"><div><h2>{originalClient?'Edit Client':'Add Client'}</h2><p>Client and Address are entered once. Add or paste Attention rows below.</p></div><button className="x-button" onClick={()=>setClientModal(false)}><UiIcon name="remove"/></button></div><div className="modal-fields"><label>Client<input value={draftClient.client} onChange={e=>matchExistingClient(e.target.value)} placeholder="Client name"/></label><label>Address<textarea rows={3} value={draftClient.address||''} onChange={e=>setDraftClient(d=>({...d,address:e.target.value}))} placeholder="Client address"/></label></div><div className="attention-head"><div><h3>Attention</h3><small>{draftClient.attentions.length}/{ATTENTION_MAX} rows</small></div><div className="attention-toolbar"><button type="button" className="btn attention-delete" disabled={!selectedAttention.size} onClick={()=>requestDelete(removeSelectedAttention,`${selectedAttention.size} selected Attention row(s) will be deleted.`)}><UiIcon name="trash" size={16}/>Delete</button><div className="add-many"><input aria-label="Attention rows to add" type="number" inputMode="numeric" min="1" max={ATTENTION_MAX} value={attentionRowsToAdd} onKeyDown={e=>{if(['-','+','e','E'].includes(e.key))e.preventDefault()}} onChange={e=>setAttentionRowsToAdd(Math.min(ATTENTION_MAX,Math.max(1,Number(e.target.value)||10)))}/><button className="btn ghost small" onClick={addAttentionRows} disabled={draftClient.attentions.length>=ATTENTION_MAX}>+ Add Rows</button></div></div></div><div className="attention-scroll"><table className="db-table master-grid editable-grid zebra-grid attention-edit-table"><thead><tr><th className="attention-select-col"><input type="checkbox" aria-label="Select all Attention rows" checked={draftClient.attentions.length>0&&selectedAttention.size===draftClient.attentions.length} onChange={toggleAllAttention}/></th><th className="rowno">No</th><th>Attention</th><th>Action</th></tr></thead><tbody>{draftClient.attentions.map((a,i)=><tr key={a.id||i}><td className="attention-select-col"><input type="checkbox" aria-label={`Select Attention row ${i+1}`} checked={selectedAttention.has(i)} onChange={()=>toggleAttention(i)}/></td><td className="rowno">{i+1}</td><td><input value={a.name} onPaste={e=>pasteAttention(e,i,0)} onChange={e=>patchAttention(i,'name',e.target.value)}/></td><td className="action-center"><button className="x-button" onClick={()=>requestDelete(()=>removeAttention(i),a.name||`Attention row ${i+1}`)}><UiIcon name="remove" size={14}/></button></td></tr>)}</tbody></table></div><div className="modal-actions"><button className="btn ghost" onClick={()=>setClientModal(false)}>Cancel</button><button className="btn primary" disabled={busy} onClick={saveClient}>{busy?'Saving...':'Save Client'}</button></div></div></div>}
 
-  {batchModal&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setBatchModal(false)}}><div className="modal-card batch-client-modal"><div className="modal-head"><div><h2>Batch Add Client Data</h2><p>Paste Client, Address, and Attention from Excel. Up to 5,000 rows; only 100 are rendered at a time for speed.</p></div><button className="x-button" onClick={()=>setBatchModal(false)}><UiIcon name="remove"/></button></div><div className="attention-head"><div><h3>Client rows</h3><small>{batchRows.length.toLocaleString('id-ID')}/{BATCH_MAX.toLocaleString('id-ID')} rows</small></div><div className="add-many"><input aria-label="Batch client rows to add" type="number" inputMode="numeric" min="1" max={BATCH_MAX} value={batchRowsToAdd} onKeyDown={e=>{if(['-','+','e','E'].includes(e.key))e.preventDefault()}} onChange={e=>setBatchRowsToAdd(Math.min(BATCH_MAX,Math.max(1,Number(e.target.value)||10)))}/><button className="btn ghost small" onClick={addBatchRows} disabled={batchRows.length>=BATCH_MAX}>+ Add Rows</button></div></div><BatchPager page={batchPage} total={batchRows.length} onChange={setBatchPage}/><div className="batch-scroll"><table className="db-table master-grid editable-grid zebra-grid"><thead><tr><th className="rowno">No</th><th>Client</th><th>Address</th><th>Attention</th><th>Action</th></tr></thead><tbody>{batchVisible.map((row,i)=>{const idx=batchStart+i;return <tr key={idx}><td className="rowno">{idx+1}</td><td><input value={row.client} onPaste={e=>pasteBatch(e,idx,0)} onChange={e=>patchBatch(idx,'client',e.target.value)}/></td><td><input value={row.address} onPaste={e=>pasteBatch(e,idx,1)} onChange={e=>patchBatch(idx,'address',e.target.value)}/></td><td><input value={row.attention} onPaste={e=>pasteBatch(e,idx,2)} onChange={e=>patchBatch(idx,'attention',e.target.value)}/></td><td className="action-center"><button className="x-button" onClick={()=>requestDelete(()=>removeBatchRow(idx),row.attention||row.client||`Batch row ${idx+1}`)}><UiIcon name="remove" size={14}/></button></td></tr>})}</tbody></table></div><BatchPager page={batchPage} total={batchRows.length} onChange={setBatchPage}/><div className="modal-actions"><button className="btn ghost" onClick={()=>setBatchModal(false)}>Cancel</button><button className="btn primary" disabled={busy} onClick={saveBatch}>{busy?'Saving...':'Save Batch'}</button></div></div></div>}
+  {batchModal&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setBatchModal(false)}}><div className="modal-card batch-client-modal"><div className="modal-head"><div><h2>Batch Add Client Data</h2><p>Paste Client, Address, and Attention from Excel. 3,000 rows are available in one scrollable grid with no pagination.</p></div><button className="x-button" onClick={()=>setBatchModal(false)}><UiIcon name="remove"/></button></div><div className="attention-head"><div><h3>Client rows</h3><small>{CLIENT_BATCH_MAX.toLocaleString('id-ID')} rows ready for paste</small></div></div><div className="batch-scroll client-batch-virtual" onScroll={e=>handleBatchScroll(e.currentTarget.scrollTop)}><table className="db-table master-grid editable-grid zebra-grid"><thead><tr><th className="rowno">No</th><th>Client</th><th>Address</th><th>Attention</th><th>Action</th></tr></thead><tbody>{batchTopSpacer>0&&<tr className="virtual-spacer" aria-hidden="true"><td colSpan={5} style={{height:batchTopSpacer}}/></tr>}{batchVisible.map((row,i)=>{const idx=batchFirst+i;return <tr key={idx}><td className="rowno">{idx+1}</td><td><input value={row.client} onPaste={e=>pasteBatch(e,idx,0)} onChange={e=>patchBatch(idx,'client',e.target.value)}/></td><td><input value={row.address} onPaste={e=>pasteBatch(e,idx,1)} onChange={e=>patchBatch(idx,'address',e.target.value)}/></td><td><input value={row.attention} onPaste={e=>pasteBatch(e,idx,2)} onChange={e=>patchBatch(idx,'attention',e.target.value)}/></td><td className="action-center"><button className="x-button" onClick={()=>requestDelete(()=>removeBatchRow(idx),row.attention||row.client||`Batch row ${idx+1}`)}><UiIcon name="remove" size={14}/></button></td></tr>})}{batchBottomSpacer>0&&<tr className="virtual-spacer" aria-hidden="true"><td colSpan={5} style={{height:batchBottomSpacer}}/></tr>}</tbody></table></div><div className="batch-performance-note">The grid uses virtual scrolling for speed, while paste and Save Batch still process all 3,000 rows.</div><div className="modal-actions"><button className="btn ghost" onClick={()=>setBatchModal(false)}>Cancel</button><button className="btn primary" disabled={busy} onClick={saveBatch}>{busy?'Saving...':'Save Batch'}</button></div></div></div>}
 
-  {salesModal&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setSalesModal(false)}}><div className="modal-card batch-client-modal"><div className="modal-head"><div><h2>Batch Add Sales PIC</h2><p>Paste Name, Email, and Phone from Excel. Up to 5,000 rows; existing names are updated instead of duplicated.</p></div><button className="x-button" onClick={()=>setSalesModal(false)}><UiIcon name="remove"/></button></div><div className="attention-head"><div><h3>Sales PIC rows</h3><small>{salesDraft.length.toLocaleString('id-ID')}/{BATCH_MAX.toLocaleString('id-ID')} rows</small></div><div className="add-many"><input aria-label="Sales rows to add" type="number" inputMode="numeric" min="1" max={BATCH_MAX} value={salesRowsToAdd} onKeyDown={e=>{if(['-','+','e','E'].includes(e.key))e.preventDefault()}} onChange={e=>setSalesRowsToAdd(Math.min(BATCH_MAX,Math.max(1,Number(e.target.value)||10)))}/><button className="btn ghost small" onClick={addSalesRows} disabled={salesDraft.length>=BATCH_MAX}>+ Add Rows</button></div></div><BatchPager page={salesBatchPage} total={salesDraft.length} onChange={setSalesBatchPage}/><div className="batch-scroll"><table className="db-table master-grid editable-grid zebra-grid"><thead><tr><th className="rowno">No</th><th>Name</th><th>Email</th><th>Phone</th><th>Action</th></tr></thead><tbody>{salesVisible.map((row,i)=>{const idx=salesStart+i;return <tr key={idx}><td className="rowno">{idx+1}</td><td><input value={row.name} onPaste={e=>pasteSales(e,idx,0)} onChange={e=>patchSalesDraft(idx,'name',e.target.value)}/></td><td><input value={row.email} onPaste={e=>pasteSales(e,idx,1)} onChange={e=>patchSalesDraft(idx,'email',e.target.value)}/></td><td><input value={row.phone} onPaste={e=>pasteSales(e,idx,2)} onChange={e=>patchSalesDraft(idx,'phone',e.target.value)}/></td><td className="action-center"><button className="x-button" onClick={()=>requestDelete(()=>removeSalesDraft(idx),row.name||`Sales PIC row ${idx+1}`)}><UiIcon name="remove" size={14}/></button></td></tr>})}</tbody></table></div><BatchPager page={salesBatchPage} total={salesDraft.length} onChange={setSalesBatchPage}/><div className="modal-actions"><button className="btn ghost" onClick={()=>setSalesModal(false)}>Cancel</button><button className="btn primary" disabled={busy} onClick={addSales}>{busy?'Saving...':'Save Batch'}</button></div></div></div>}
+  {salesModal&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setSalesModal(false)}}><div className="modal-card batch-client-modal"><div className="modal-head"><div><h2>Batch Add Sales PIC</h2><p>Paste Name, Email, and Phone from Excel. Up to 5,000 rows; existing names are updated instead of duplicated.</p></div><button className="x-button" onClick={()=>setSalesModal(false)}><UiIcon name="remove"/></button></div><div className="attention-head"><div><h3>Sales PIC rows</h3><small>{salesDraft.length.toLocaleString('id-ID')}/{SALES_BATCH_MAX.toLocaleString('id-ID')} rows</small></div><div className="add-many"><input aria-label="Sales rows to add" type="number" inputMode="numeric" min="1" max={SALES_BATCH_MAX} value={salesRowsToAdd} onKeyDown={e=>{if(['-','+','e','E'].includes(e.key))e.preventDefault()}} onChange={e=>setSalesRowsToAdd(Math.min(SALES_BATCH_MAX,Math.max(1,Number(e.target.value)||10)))}/><button className="btn ghost small" onClick={addSalesRows} disabled={salesDraft.length>=SALES_BATCH_MAX}>+ Add Rows</button></div></div><BatchPager page={salesBatchPage} total={salesDraft.length} onChange={setSalesBatchPage}/><div className="batch-scroll"><table className="db-table master-grid editable-grid zebra-grid"><thead><tr><th className="rowno">No</th><th>Name</th><th>Email</th><th>Phone</th><th>Action</th></tr></thead><tbody>{salesVisible.map((row,i)=>{const idx=salesStart+i;return <tr key={idx}><td className="rowno">{idx+1}</td><td><input value={row.name} onPaste={e=>pasteSales(e,idx,0)} onChange={e=>patchSalesDraft(idx,'name',e.target.value)}/></td><td><input value={row.email} onPaste={e=>pasteSales(e,idx,1)} onChange={e=>patchSalesDraft(idx,'email',e.target.value)}/></td><td><input value={row.phone} onPaste={e=>pasteSales(e,idx,2)} onChange={e=>patchSalesDraft(idx,'phone',e.target.value)}/></td><td className="action-center"><button className="x-button" onClick={()=>requestDelete(()=>removeSalesDraft(idx),row.name||`Sales PIC row ${idx+1}`)}><UiIcon name="remove" size={14}/></button></td></tr>})}</tbody></table></div><BatchPager page={salesBatchPage} total={salesDraft.length} onChange={setSalesBatchPage}/><div className="modal-actions"><button className="btn ghost" onClick={()=>setSalesModal(false)}>Cancel</button><button className="btn primary" disabled={busy} onClick={addSales}>{busy?'Saving...':'Save Batch'}</button></div></div></div>}
   <ConfirmDialog open={!!deleteConfirm} detail={deleteConfirm?.detail} onCancel={()=>setDeleteConfirm(null)} onYes={()=>void confirmDelete()}/>
  </>
 }

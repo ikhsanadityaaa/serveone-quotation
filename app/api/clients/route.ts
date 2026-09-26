@@ -52,7 +52,7 @@ async function saveClient(body:any,originalClient?:string){
 
 async function batchAdd(rows:BatchRow[]){
  const sb=getSupabaseServerClient();
- const cleaned=(rows||[]).slice(0,5000).map(r=>({client:clean(r.client),address:clean(r.address),attention:clean(r.attention),active:r.active!==false})).filter(r=>r.client&&r.attention);
+ const cleaned=(rows||[]).slice(0,3000).map(r=>({client:clean(r.client),address:clean(r.address),attention:clean(r.attention),active:r.active!==false})).filter(r=>r.client&&r.attention);
  if(!cleaned.length)throw new Error('Paste at least one Client + Attention row.');
  const {data:existing,error}=await sb.from('member_directory').select('id,op_unit_name,member_name,address,active').limit(20000);if(error)throw error;
  const byClient=new Map<string,any[]>();
