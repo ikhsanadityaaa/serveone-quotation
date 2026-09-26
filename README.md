@@ -1,3 +1,12 @@
+# Serveone Quotation V28
+
+## V28 changes
+- New quotations start with `Payment condition: 30 days after issue invoice` as Note #1.
+- Notes can still be reordered with the up/down controls.
+- The exact Notes order is saved with the quotation and restored unchanged when the quotation is reloaded.
+- Existing quotations keep their previously saved Notes order.
+- No Supabase SQL change is required for V28.
+
 # Serveone Quotation
 
 Internal quotation generator for PT Serveone MRO Indonesia.
