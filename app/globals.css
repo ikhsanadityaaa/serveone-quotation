@@ -389,3 +389,8 @@ input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!impor
 .client-batch-virtual .db-table tbody tr:not(.virtual-spacer)>td{height:39px;min-height:39px;max-height:39px}
 .client-batch-virtual .virtual-spacer>td{padding:0!important;border:0!important;background:transparent!important;line-height:0;font-size:0}
 .batch-performance-note{margin-top:8px;color:#718096;font-size:12px}
+
+/* V30: keep Client Data row actions grouped and centered */
+.client-action-buttons{display:inline-flex;align-items:center;justify-content:center;gap:10px;margin:0 auto;vertical-align:middle}
+.client-action-buttons .edit-button,.client-action-buttons .x-button{margin:0;flex:0 0 auto}
+.client-group-table td.action-center{text-align:center!important;vertical-align:middle!important}
