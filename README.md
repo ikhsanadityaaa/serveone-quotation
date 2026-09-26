@@ -64,3 +64,8 @@ The Rows-per-page selector is positioned immediately to the left of the Previous
 ## V25
 - Create Quotation > Issuer address is directly editable and can be saved to Supabase.
 - Checkbox focus no longer shows an extra blue border/box.
+
+## V26 UI update
+- Serveone Information now uses a table layout consistent with President Director.
+- Columns: Company and Serveone Address only; no Action column.
+- Save Address remains available in the section header.
