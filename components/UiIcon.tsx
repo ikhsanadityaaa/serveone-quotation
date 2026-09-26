@@ -1,4 +1,4 @@
-export type IconName='upload'|'download'|'refresh'|'duplicate'|'remove'|'search'|'excel'|'pdf'|'document'|'edit'|'chevronLeft'|'chevronRight'|'chevronUp'|'chevronDown';
+export type IconName='upload'|'download'|'refresh'|'duplicate'|'remove'|'search'|'excel'|'pdf'|'document'|'edit'|'chevronLeft'|'chevronRight'|'chevronUp'|'chevronDown'|'print'|'trash';
 
 export default function UiIcon({name,size=18}:{name:IconName;size?:number}){
  const p={width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:1.8,strokeLinecap:'round' as const,strokeLinejoin:'round' as const,'aria-hidden':true};
@@ -15,5 +15,7 @@ export default function UiIcon({name,size=18}:{name:IconName;size?:number}){
  if(name==='chevronRight')return <svg {...p}><path d="m9 18 6-6-6-6"/></svg>;
  if(name==='chevronUp')return <svg {...p}><path d="m18 15-6-6-6 6"/></svg>;
  if(name==='chevronDown')return <svg {...p}><path d="m6 9 6 6 6-6"/></svg>;
+ if(name==='print')return <svg {...p}><path d="M7 8V3h10v5"/><rect x="5" y="14" width="14" height="7" rx="1"/><path d="M5 17H3v-7h18v7h-2M17 12h.01"/></svg>;
+ if(name==='trash')return <svg {...p}><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></svg>;
  return <svg {...p}><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v5h4M8 16v-5h2.2a1.8 1.8 0 0 1 0 3.6H8m6-3.6v5m0-5h2.5"/></svg>;
 }

@@ -260,3 +260,37 @@ button.upload-btn:disabled{opacity:.45;cursor:not-allowed}
 .quotation-info.has-sales .form-grid>.sales-field>.select-trigger,.quotation-info.has-sales .rfq-field>input{min-height:58px!important;height:58px!important}
 .batch-pager{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0;color:#657489;font-size:12px}.batch-pager>div{display:flex;align-items:center;gap:8px}.batch-pager b{min-width:62px;text-align:center;color:#34445a}.batch-client-modal .batch-scroll{max-height:460px}.batch-client-modal .db-table{min-width:980px}
 @media(max-width:1300px){.sheet-canvas{grid-template-columns:minmax(1050px,1fr) 76px;min-width:1126px}.sheet-canvas .sheet{min-width:1050px}}
+
+/* V16: filled Create Quotation fields, staged filters, and selectable quotation history. */
+.filled-field>input,.filled-field textarea,.filled-field .select-trigger,.filled-field .suffix-input input,.filled-field .suffix-input span{background:#fff8cf!important}
+.required-error.filled-field>input,.required-error.filled-field .suffix-input input,.required-error.filled-field .suffix-input span,.field-error.filled-field .select-trigger{background:#fff2f2!important}
+.staged-filter-pop{width:310px;padding:10px}
+.staged-filter-pop .filter-list{max-height:300px;margin-bottom:8px}
+.staged-filter-pop .select-all-row{border-bottom:1px solid var(--line2);padding-bottom:9px;margin-bottom:3px}
+.filter-pop-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:9px;border-top:1px solid var(--line2)}
+.filter-pop-actions .btn{height:38px;padding:8px 12px}
+.list-toolbar-spacer{flex:1 1 auto}
+.toolbar-row>.icon-only-button{flex:0 0 auto}
+.danger-action{color:#b42335}
+.danger-action:hover:not(:disabled){background:#fff2f3!important;border-color:#e3a9b0!important;color:#a51d30!important}
+.selection-history .select-col{width:44px!important;min-width:44px!important;text-align:center!important;vertical-align:middle!important}
+.selection-history .select-col input[type=checkbox]{display:block;margin:0 auto;width:15px;height:15px}
+.selection-history .reload-col{width:64px!important;min-width:64px!important;text-align:center!important;vertical-align:middle!important}
+.selection-history td:nth-child(3),.selection-history th:nth-child(3){min-width:48px;width:48px;text-align:center}
+.selection-history td:nth-child(4),.selection-history th:nth-child(4){min-width:170px}
+.selection-history td:nth-child(5),.selection-history th:nth-child(5){min-width:92px}
+.selection-history td:nth-child(6),.selection-history th:nth-child(6){min-width:180px}
+.selection-history td:nth-child(7),.selection-history th:nth-child(7){min-width:150px}
+.selection-history td:nth-child(8),.selection-history th:nth-child(8){min-width:62px;text-align:center}
+.selection-history td:nth-child(9),.selection-history th:nth-child(9){min-width:190px}
+.selection-history td:nth-child(10),.selection-history th:nth-child(10){min-width:210px}
+.selection-history td:nth-child(11),.selection-history th:nth-child(11){min-width:120px}
+.selection-history td:nth-child(12),.selection-history th:nth-child(12){min-width:120px}
+.selection-history td:nth-child(13),.selection-history th:nth-child(13){min-width:105px;text-align:center}
+.selection-history td:nth-child(14),.selection-history th:nth-child(14){min-width:80px}
+.selection-history td:nth-child(15),.selection-history th:nth-child(15){min-width:80px;text-align:center}
+.selection-history td:nth-child(16),.selection-history th:nth-child(16),.selection-history td:nth-child(17),.selection-history th:nth-child(17){min-width:130px}
+.selection-history td:nth-child(18),.selection-history th:nth-child(18){min-width:190px}
+.selection-history tbody tr:hover td.reload-col,.selection-history tbody tr:hover td.select-col{background:inherit!important}
+.selection-history .reload-icon:hover{background:#f4f7fb!important;border-color:#cfd8e3!important;color:#536176!important}
+@media(max-width:980px){.toolbar-row{align-items:stretch}.list-toolbar-spacer{display:none}}
