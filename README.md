@@ -25,3 +25,9 @@ See `BUILD_INSTRUCTIONS.md` for local setup and deployment.
 - Quotation List supports multi-select checkboxes, per-quotation Reload, batch Delete with confirmation, and batch Print to a combined PDF.
 - Sales PIC and Client filters use staged selections: changes only apply after **Apply**; **Clear All** only changes the draft until Apply is pressed.
 - Excel signature placement is slightly realigned for the President Director block.
+
+
+## V17 UI refinements
+- Larger blue Print/Delete toolbar buttons on Quotation List.
+- Filter popovers open to the right so they do not overlap the sidebar.
+- Specification cells are explicitly left-aligned.
