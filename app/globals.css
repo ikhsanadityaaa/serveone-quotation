@@ -262,10 +262,10 @@ button.upload-btn:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:1300px){.sheet-canvas{grid-template-columns:minmax(1050px,1fr) 76px;min-width:1126px}.sheet-canvas .sheet{min-width:1050px}}
 
 /* V16: filled Create Quotation fields, staged filters, and selectable quotation history. */
-/* V22: populated Create Quotation fields use a yellow outline only; keep field interiors white. */
-.filled-field>input,.filled-field textarea,.filled-field .select-trigger{background:#fff!important;border-color:#e6bf3f!important;box-shadow:0 0 0 2px rgba(230,191,63,.22)!important}
-.filled-field .suffix-input{border-radius:8px;box-shadow:0 0 0 2px rgba(230,191,63,.22)!important}
-.filled-field .suffix-input input,.filled-field .suffix-input span{background:#fff!important;border-color:#e6bf3f!important}
+/* V24: populated Create Quotation fields use a green outline only; keep field interiors white. */
+.filled-field>input,.filled-field textarea,.filled-field .select-trigger{background:#fff!important;border-color:#2f9d68!important;box-shadow:0 0 0 2px rgba(47,157,104,.20)!important}
+.filled-field .suffix-input{border-radius:8px;box-shadow:0 0 0 2px rgba(47,157,104,.20)!important}
+.filled-field .suffix-input input,.filled-field .suffix-input span{background:#fff!important;border-color:#2f9d68!important}
 .required-error.filled-field>input,.required-error.filled-field .suffix-input,.field-error.filled-field .select-trigger{box-shadow:0 0 0 2px rgba(197,51,67,.18)!important}
 .required-error.filled-field>input,.required-error.filled-field .suffix-input input,.required-error.filled-field .suffix-input span,.field-error.filled-field .select-trigger{background:#fff!important;border-color:var(--red)!important}
 .staged-filter-pop{width:310px;padding:10px}
@@ -364,3 +364,10 @@ button.upload-btn:disabled{opacity:.45;cursor:not-allowed}
 .attention-toolbar{display:flex;align-items:center;gap:10px}.attention-delete{display:inline-flex;align-items:center;gap:7px;height:36px;background:var(--blue);border-color:var(--blue);color:#fff}.attention-delete:hover:not(:disabled){background:var(--blue2);border-color:var(--blue2)}.attention-delete:disabled{opacity:.38;cursor:not-allowed}
 .attention-edit-table .attention-select-col{width:44px!important;min-width:44px!important;text-align:center!important;vertical-align:middle!important;padding:0!important}.attention-edit-table .attention-select-col input[type=checkbox]{display:block;margin:0 auto;width:15px;height:15px}.attention-edit-table th:nth-child(2),.attention-edit-table td:nth-child(2){width:54px;min-width:54px;text-align:center!important}.attention-edit-table th:nth-child(4),.attention-edit-table td:nth-child(4){width:70px;min-width:70px;text-align:center!important}
 @media(max-width:720px){.attention-head{align-items:flex-start}.attention-toolbar{width:100%;flex-wrap:wrap;justify-content:flex-end}}
+
+
+/* V24: editable issuer address in Master Data. */
+.company-settings-grid{display:grid;grid-template-columns:minmax(220px,.42fr) minmax(0,1.58fr);gap:14px;align-items:end}
+.company-settings-grid label{margin:0}.company-settings-grid textarea{min-height:82px;line-height:1.45}
+.company-settings-actions{display:flex;justify-content:flex-end;margin-top:12px}
+@media(max-width:720px){.company-settings-grid{grid-template-columns:1fr}.company-settings-actions .btn{width:100%}}

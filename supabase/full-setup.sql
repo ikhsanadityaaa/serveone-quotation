@@ -1,5 +1,5 @@
 -- Serveone Quotation - current fresh setup.
--- Existing deployments do NOT need to run this file again.
+-- Fresh setup. Existing deployments upgrading from V23 should run supabase/v24-upgrade.sql once.
 create extension if not exists pgcrypto;
 
 create table if not exists public.sales_people (
@@ -36,6 +36,20 @@ create table if not exists public.member_directory (
 );
 create index if not exists member_directory_op_unit_idx on public.member_directory(op_unit_name);
 create index if not exists member_directory_member_idx on public.member_directory(member_name);
+
+
+create table if not exists public.app_settings (
+  key text primary key,
+  value text not null default '',
+  updated_at timestamptz not null default now()
+);
+
+insert into public.app_settings (key, value)
+values (
+  'company_address',
+  'Jalan Kenari Raya Blok G No. 19, Kawasan Delta Silicon V, Lippo Cikarang, RT. 000 RW. 000, Cicau, Cikarang Pusat, Kab. Bekasi, Jawa Barat'
+)
+on conflict (key) do nothing;
 
 create table if not exists public.quotation_sequences (
   quote_month date primary key,

@@ -43,3 +43,7 @@ Set these Vercel Environment Variables:
 
 ## Batch input notes
 Client Data and Sales PIC batch editors accept up to 5,000 pasted rows. Only 100 rows are rendered per batch page so the browser remains responsive. Server writes are grouped into bulk database requests instead of one request per row.
+
+
+## V24 database upgrade
+For an existing Supabase project, run `supabase/v24-upgrade.sql` once before using the editable Serveone address. Fresh installations can use `supabase/full-setup.sql`.

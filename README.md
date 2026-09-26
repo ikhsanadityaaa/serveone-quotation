@@ -51,3 +51,11 @@ The Rows-per-page selector is positioned immediately to the left of the Previous
 - All destructive X actions use the same custom confirmation dialog: “Are You sure want to delete this data?” with Yes / Cancel.
 - Quotation List bulk Delete uses the same confirmation dialog.
 - Edit Client > Attention has row checkboxes, select-all, and bulk Delete above the table.
+
+
+## V24 changes
+- Populated Create Quotation fields now use a green outline (white fill).
+- Serveone issuer address is editable and saved in Master Data.
+- Existing deployments must run `supabase/v24-upgrade.sql` once.
+- Qty cannot be negative, including pasted values.
+- Add Rows counters reject negative input.
