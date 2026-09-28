@@ -101,3 +101,7 @@ The Rows-per-page selector is positioned immediately to the left of the Previous
 - Item/Description, Specification, and Remarks auto-wrap and grow row height.
 - Rebalanced Qty, UOM, Unit Price, Specification, and Brand widths.
 - PDF, Excel, history, and reload preserve Code and Lead Time unit.
+
+## V37 updates
+- UOM in Create Quotation is now a true searchable dropdown with a compact arrow control; cells still display only the selected UOM code while the dropdown shows code + description.
+- Items Action column remains pinned at the far right and its action buttons no longer change styling on hover.

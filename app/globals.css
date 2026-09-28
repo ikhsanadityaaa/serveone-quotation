@@ -452,3 +452,26 @@ input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!impor
 /* V36: quotation table headers/body get matching vertical dividers in the same theme. */
 .quotation-sheet th,.quotation-sheet td{border-right:1px solid #d8e0e8}
 .quotation-sheet th:last-child,.quotation-sheet td:last-child{border-right:0}
+
+/* V37: real searchable UOM dropdown with the same compact affordance as Lead Time. */
+.uom-picker{display:grid;grid-template-columns:minmax(0,1fr) 20px;align-items:stretch;min-height:35px;width:100%;background:#fff}
+.uom-picker .uom-search-input{min-width:0!important;width:100%!important;padding:7px 3px 7px 5px!important;text-align:center!important;border:0!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;cursor:text}
+.uom-picker .uom-search-input:focus{box-shadow:inset 0 0 0 2px var(--blue)!important;outline:none!important}
+.uom-picker-arrow{position:relative;border:0!important;border-left:1px solid rgba(207,216,227,.75)!important;border-radius:0!important;background:#fff!important;padding:0!important;width:20px!important;min-width:20px!important;color:#6d7d92!important;box-shadow:none!important}
+.uom-picker-arrow span{position:absolute;left:50%;top:50%;width:7px;height:7px;border-right:1.7px solid currentColor;border-bottom:1.7px solid currentColor;transform:translate(-55%,-65%) rotate(45deg)}
+.uom-picker-arrow:hover,.uom-picker-arrow:focus{background:#fff!important;color:#6d7d92!important;outline:none!important;box-shadow:none!important}
+.uom-dropdown-popover{position:fixed;z-index:10000;background:#fff;border:1px solid #d7e0ea;border-radius:10px;box-shadow:0 12px 32px rgba(20,36,61,.20);overflow:hidden}
+.uom-dropdown-search{padding:8px;border-bottom:1px solid #e5eaf0;background:#fff}
+.uom-dropdown-search input{height:34px;padding:7px 9px;border:1px solid #cfd8e3;border-radius:7px;background:#fff;box-shadow:none!important;font-size:12px}
+.uom-dropdown-search input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(23,105,255,.10)!important}
+.uom-dropdown-list{max-height:250px;overflow:auto;padding:5px}
+.uom-dropdown-list button{display:flex;align-items:center;gap:7px;width:100%;min-height:32px;padding:7px 8px;border:0;border-radius:7px;background:#fff;text-align:left;color:#26364c}
+.uom-dropdown-list button:hover,.uom-dropdown-list button.selected{background:#eef5ff;color:#174f9c}
+.uom-dropdown-list .uom-code{min-width:34px;font-weight:800}
+.uom-dropdown-list .uom-name{font-size:11px;color:#68758a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.uom-dropdown-empty{padding:12px;text-align:center;color:#7a8798;font-size:12px}
+
+/* V37: Action is permanently pinned to the far right and has no hover styling. */
+.sheet th.sheet-actions-head,.sheet td.sheet-actions-cell{position:sticky!important;right:0!important}
+.sheet-actions-buttons button:hover{background:transparent!important;color:#4f6075!important}
+.sheet-actions-buttons .remove-row:hover{background:transparent!important;color:#c53343!important}
