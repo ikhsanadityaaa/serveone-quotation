@@ -658,3 +658,22 @@ input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!impor
 .quotation-floating-header-table{margin:0!important;min-width:0!important;table-layout:fixed!important;will-change:transform}
 .quotation-floating-header .quotation-sheet thead th{position:static!important;top:auto!important;height:36px!important;background:#e9eff7!important;vertical-align:middle!important}
 .quotation-floating-header .quotation-sheet thead th.reload-col{position:static!important;background:#e9eff7!important}
+
+/* V46: centered Qty header and single-column pin/freeze for Quotation List. */
+.quotation-sheet thead th.qty-head{ text-align:center!important; }
+.history-header-inner{position:relative;display:flex;align-items:center;justify-content:center;width:100%;min-height:20px}
+.history-header-label{display:inline-flex;align-items:center;justify-content:center;min-width:0;max-width:100%}
+.history-pin-button{position:absolute;right:-3px;top:50%;transform:translateY(-50%);width:20px;height:20px;padding:0;border:1px solid transparent;border-radius:5px;background:rgba(233,239,247,.92);color:#718096;display:grid;place-items:center;opacity:0;transition:opacity .12s ease,background .12s ease,color .12s ease,border-color .12s ease;z-index:2}
+.quotation-sheet th:hover .history-pin-button,.history-pin-button:focus-visible,.history-pin-button.active{opacity:1}
+.history-pin-button:hover{background:#fff;border-color:#bdc9d8;color:#34445a}
+.history-pin-button.active{background:#dce9ff;border-color:#9fbfff;color:var(--blue)}
+
+/* Only the selected column freezes; columns before it continue scrolling normally. */
+.quotation-sheet th.history-pinned-cell,.quotation-sheet td.history-pinned-cell{position:sticky!important;left:0!important;background-clip:padding-box!important;box-shadow:1px 0 0 #c7d1dd,8px 0 14px -14px rgba(28,45,74,.55)}
+.quotation-sheet td.history-pinned-cell{z-index:7!important}
+.quotation-sheet thead th.history-pinned-cell{z-index:12!important;background:#e9eff7!important}
+.quotation-sheet tr.quote-group-base td.history-pinned-cell,.quotation-sheet tr.quote-group-base:hover td.history-pinned-cell{background:#fff!important}
+.quotation-sheet tr.quote-group-alt td.history-pinned-cell,.quotation-sheet tr.quote-group-alt:hover td.history-pinned-cell{background:#f3f6fa!important}
+
+/* The fixed-on-window header mirrors horizontal scrolling and the selected pinned column. */
+.quotation-floating-header .quotation-sheet thead th.history-pinned-cell{position:relative!important;left:auto!important;z-index:14!important;background:#e9eff7!important;will-change:transform}

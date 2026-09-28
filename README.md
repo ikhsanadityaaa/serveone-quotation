@@ -142,3 +142,8 @@ No new SQL is required for V42. V41 revision SQL is still required if it has not
 - Remarks cells are vertically centered within taller item rows while remaining left-aligned.
 - Mouse drag inside editable inputs/textareas (including Qty) now selects characters normally, so partial values can be deleted or replaced.
 - Dragging from an editable cell into another cell still switches to rectangular spreadsheet range selection.
+
+### V46
+- Quotation List Qty header is centered.
+- Data-column headers can be pinned one at a time. The pinned column alone stays at the far left while horizontal scrolling; earlier columns continue scrolling away.
+- Pinned body cells keep the quotation-group zebra background so overlapping content remains opaque and readable.
