@@ -1,59 +1,90 @@
-# Serveone Quotation — Vercel Manual Database Edition
+# Serveone Quotation V28
 
-Next.js + Vercel + Supabase quotation generator.
+## V28 changes
+- New quotations start with `Payment condition: 30 days after issue invoice` as Note #1.
+- Notes can still be reordered with the up/down controls.
+- The exact Notes order is saved with the quotation and restored unchanged when the quotation is reloaded.
+- Existing quotations keep their previously saved Notes order.
+- No Supabase SQL change is required for V28.
 
-This edition intentionally removes browser file uploads. All master data is maintained directly in editable tables and saved to Supabase.
+# Serveone Quotation
+
+Internal quotation generator for PT Serveone MRO Indonesia.
+
+## Stack
+- Next.js
+- Vercel
+- Supabase PostgreSQL
+- ExcelJS for XLSX export
+- pdf-lib for PDF export
 
 ## Main features
+- Create quotation and export Excel/PDF separately.
+- Client / Attention / Sales PIC master data stored in Supabase.
+- Spreadsheet-style item grid with Excel paste and searchable UOM.
+- Batch Client Data and Batch Sales PIC input up to 5,000 rows.
+- Quotation List with search, filters, pagination, reload and delete.
+- Atomic monthly quotation numbering: `SMI/YYYY-MM/0001`.
+- Static Serveone logo and President Director signature from `/public`.
 
-- Create Quotation
-- Searchable Client / Attention / Sales PIC dropdowns
-- Spreadsheet-style Items grid with Excel paste and drag-fill
-- Add multiple item rows at once
-- Automatic quotation number: `SMI/{Client Code}/{YYYY.MM}/{running number}`
-- Excel / PDF download buttons are independent
-- VAT calculation and Total Amount Include VAT
-- Quotation List, filters, reload, and filtered Excel export
-- Database page with editable tables for:
-  - Member / Client database
-  - Sales PIC
-  - UOM
-  - President Director name/title
-- Database changes are saved directly to Supabase
-- Serveone logo stored in `public/serveone-logo.png`
-- President Director signature stored in `public/signature-mr-herry.png`
-- No Excel upload and no signature upload from the browser
+See `BUILD_INSTRUCTIONS.md` for local setup and deployment.
 
-## Environment variables
+## V16 interaction updates
+- Filled Create Quotation fields are highlighted in soft yellow.
+- Quotation List supports multi-select checkboxes, per-quotation Reload, batch Delete with confirmation, and batch Print to a combined PDF.
+- Sales PIC and Client filters use staged selections: changes only apply after **Apply**; **Clear All** only changes the draft until Apply is pressed.
+- Excel signature placement is slightly realigned for the President Director block.
 
-```env
-SUPABASE_URL=https://xxxxx.supabase.co
-SUPABASE_SECRET_KEY=sb_secret_xxxxx
-```
 
-Never expose `SUPABASE_SECRET_KEY` using a `NEXT_PUBLIC_` variable.
+## V17 UI refinements
+- Larger blue Print/Delete toolbar buttons on Quotation List.
+- Filter popovers open to the right so they do not overlap the sidebar.
+- Specification cells are explicitly left-aligned.
 
-## V6 UI/data behavior
 
-UOM is a fixed application catalogue sourced from `UOM STANDART2.xlsx`, so it is not managed in Supabase. Client Data and Quotation List support 15/25/50/100/500 pagination. Master Data tables use zebra rows like the Items grid, Sales PIC scrolls after roughly 10 rows, and delete actions use X icons.
+## V18 master-data UI
+- Client Data and Quotation List default pagination: 15 rows.
+- Active columns are hidden from all Master Data tables.
+- Action X buttons are centered and turn red on hover.
+- Edit Client supports up to 1,000 Attention rows, so existing clients with hundreds of Attention entries load completely.
 
-## V7 Master Data model
-The Master Data page now groups Client Data by Client. Client Code is entered once per Client and each Client can have up to 100 Attention/Address records. Sales PIC is managed separately and all dropdowns are alphabetically sorted.
 
-For an existing Supabase project, run `supabase/v7-upgrade.sql` once to change new quotation numbers to `YYYY-MM`.
+## V19 UI polish
+- Client Edit button is centered and turns blue on hover.
+- Attention count in Client Data is centered.
 
-## V8 update
-See `UPDATE_V8.md` for the latest PDF/Excel quotation styling and Excel-like Master Data input changes.
+### V22 pagination layout
+The Rows-per-page selector is positioned immediately to the left of the Previous/Next page controls across Client Data and Quotation List.
 
-## V9 notes
-The PDF renderer was polished for a cleaner professional quotation: corrected logo ratio, compact aligned information rows, reduced red accents, separate Sales PIC / Email / Phone Number, neutral table styling, aligned IDR totals, and Indonesian generation date above the President Director signature. Quotation List also supports confirmed deletion without reusing quotation numbers, and Active controls / pagination / edit actions were standardized in the web UI.
+## V23 UI update
+- All destructive X actions use the same custom confirmation dialog: “Are You sure want to delete this data?” with Yes / Cancel.
+- Quotation List bulk Delete uses the same confirmation dialog.
+- Edit Client > Attention has row checkboxes, select-all, and bulk Delete above the table.
 
-## V11 notes
-Run `supabase/v11-upgrade.sql` once before using the new quotation numbering format `SMI/YYYY-MM/0001`.
 
-## V12 quotation output
+## V24 changes
+- Populated Create Quotation fields now use a green outline (white fill).
+- Serveone issuer address is editable and saved in Master Data.
+- Existing deployments must run `supabase/v24-upgrade.sql` once.
+- Qty cannot be negative, including pasted values.
+- Add Rows counters reject negative input.
 
-V12 improves multi-page quotation output. Continuation PDF pages repeat the Serveone company header and item-table header. Currency is shown in the item column headers (`Unit Price (IDR)` / `Amount (IDR)`) rather than repeated in every item cell.
 
-## V13 UX update
-V13 adds merged quotation rows in Quotation List, read-only remarks, required-field validation and auto-scroll, sortable Notes, faster Master Data loading, center-page loading indicators, and batch Client/Attention entry with duplicate-safe upsert behavior. Client Code is no longer required in Master Data. See `UPDATE_V13.md`.
+## V25
+- Create Quotation > Issuer address is directly editable and can be saved to Supabase.
+- Checkbox focus no longer shows an extra blue border/box.
+
+## V26 UI update
+- Serveone Information now uses a table layout consistent with President Director.
+- Columns: Company and Serveone Address only; no Action column.
+- Save Address remains available in the section header.
+
+
+## V27
+- The Issuer section on Create Quotation is read-only.
+- Serveone company address is edited and saved only from Master Data.
+
+## V29
+- Batch Add Client Data now provides one scrollable 3,000-row grid with no pagination.
+- The grid uses virtual scrolling so only the visible rows are mounted, while paste/save still handles up to 3,000 rows.
+- Client batch paste updates only affected rows in memory and the API continues bulk/chunk database writes for speed.
