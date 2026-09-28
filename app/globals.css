@@ -498,3 +498,25 @@ input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!impor
 .uom-dropdown-empty{padding:8px;text-align:center;color:#7a8798;font-size:10px}
 .sheet th.sheet-actions-head,.sheet td.sheet-actions-cell{display:none!important}
 .sheet col.col-actions{display:none!important}
+
+
+/* V39: UOM chevron matches Lead Time exactly and popup stays open while its list scrolls. */
+.uom-picker-arrow{
+  position:relative!important;
+  width:20px!important;
+  min-width:20px!important;
+  height:35px!important;
+  border:0!important;
+  border-left:1px solid rgba(207,216,227,.75)!important;
+  border-radius:0!important;
+  background-color:#fff!important;
+  background-image:linear-gradient(45deg,transparent 50%,#6d7d92 50%),linear-gradient(135deg,#6d7d92 50%,transparent 50%)!important;
+  background-position:calc(100% - 11px) 15px,calc(100% - 7px) 15px!important;
+  background-size:4px 4px,4px 4px!important;
+  background-repeat:no-repeat!important;
+  padding:0!important;
+  box-shadow:none!important;
+  color:#6d7d92!important;
+}
+.uom-picker-arrow span{display:none!important}
+.uom-picker-arrow:hover,.uom-picker-arrow:focus{background-color:#fff!important;outline:none!important;box-shadow:none!important}
