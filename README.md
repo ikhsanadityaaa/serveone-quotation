@@ -1,3 +1,16 @@
+# Serveone Quotation V41
+
+## V41 changes
+- Revisions now stay under one base quotation number: `SMI/YYYY-MM/0001`, then `/REV-1`, `/REV-2`, and so on.
+- KPI Clients / Quotes / Amount use only the newest revision of each logical quotation, so older negotiated prices are not double-counted.
+- Quotation List adds **Latest Quo**. Only the newest record of a revised quotation shows a blue **Latest** badge; quotations that were never revised stay unlabeled.
+- Quotation List > Download Excel now offers **All Quotation** or **Latest Quotation Only**.
+- Qty is wider and displays Indonesian thousands separators (for example `10.000`).
+- Lead Time accepts digits only.
+- Lead Time and UOM can be filled down with the blue drag handle.
+- Wrapped item rows now keep every column at the same row height, like Excel.
+- Existing Supabase projects must run `supabase/v41-upgrade.sql` once before deploying V41. Existing historical quotation numbers are preserved; future revisions use `/REV-N`.
+
 # Serveone Quotation V28
 
 ## V28 changes

@@ -11,4 +11,4 @@ export type QuoteContent = {
   directorId:string; directorName:string; directorTitle:string; directorSignaturePath?:string;
   companyName:string; companyAddress:string;
 };
-export type StoredQuotation = { id:string; quotation_no:string; quotation_date:string; client_id?:string|null; client_name:string; client_code:string; sales_pic_id?:string|null; sales_name:string; total_amount:number; content_hash:string; content:QuoteContent; source_quotation_id?:string|null; created_at:string };
+export type StoredQuotation = { id:string; quotation_no:string; quotation_date:string; client_id?:string|null; client_name:string; client_code:string; sales_pic_id?:string|null; sales_name:string; total_amount:number; content_hash:string; content:QuoteContent; source_quotation_id?:string|null; base_quotation_no?:string|null; revision_no?:number|null; is_latest?:boolean|null; created_at:string };

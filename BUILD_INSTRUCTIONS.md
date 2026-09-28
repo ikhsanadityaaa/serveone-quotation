@@ -47,3 +47,8 @@ Client Data and Sales PIC batch editors accept up to 5,000 pasted rows. Only 100
 
 ## V24 database upgrade
 For an existing Supabase project, run `supabase/v24-upgrade.sql` once before using the editable Serveone address. Fresh installations can use `supabase/full-setup.sql`.
+
+
+## V41 database upgrade
+For an existing Supabase project, run `supabase/v41-upgrade.sql` **once before deploying V41**.
+This adds revision metadata and the atomic revision-number function used by `/REV-N`. Fresh installations can use the updated `supabase/full-setup.sql`.
