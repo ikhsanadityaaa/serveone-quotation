@@ -93,3 +93,11 @@ The Rows-per-page selector is positioned immediately to the left of the Previous
 - Create Quotation Attention is now a typeable combobox.
 - If the typed Attention does not exist for the selected Client, an Add button appears.
 - Add saves the new Attention directly to the selected Client and refreshes the local Attention list immediately.
+
+
+## V34 item grid
+- Added Code before Item / Description.
+- Lead Time now has a Days/Week selector, default Days.
+- Item/Description, Specification, and Remarks auto-wrap and grow row height.
+- Rebalanced Qty, UOM, Unit Price, Specification, and Brand widths.
+- PDF, Excel, history, and reload preserve Code and Lead Time unit.

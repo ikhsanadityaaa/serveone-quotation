@@ -2,7 +2,7 @@ export type SalesPerson = { id:string; name:string; email?:string|null; phone?:s
 export type MemberRecord = { id:string; mem_id?:string|null; member_name:string; op_unit_id?:string|null; op_unit_name:string; client_id_external?:string|null; client_name:string; address:string; client_code:string; active?:boolean };
 export type Director = { id:string; name:string; title:string; signature_path?:string|null; active?:boolean };
 export type Uom = { id:string; code:string; name?:string|null; active?:boolean };
-export type QuoteItem = { code:string; productName:string; spec:string; brand:string; user:string; leadTime:string; qty:number; uom:string; unitPrice:number; remarks:string };
+export type QuoteItem = { code:string; productName:string; spec:string; brand:string; user:string; leadTime:string; leadTimeUnit?:'Days'|'Week'; qty:number; uom:string; unitPrice:number; remarks:string };
 export type QuoteContent = {
   quotationDate:string; validityDays:number; vatRate:number; paymentCondition:string; rfqNo:string;
   salesId:string; salesName:string; salesEmail?:string; salesPhone?:string;

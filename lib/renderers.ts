@@ -19,36 +19,38 @@ export async function quotationXlsx(q:StoredQuotation){
  const ws=wb.addWorksheet('Quotation',{pageSetup:{paperSize:9,orientation:'portrait',fitToPage:true,fitToWidth:1,fitToHeight:0,margins:{left:.22,right:.22,top:.22,bottom:.3,header:.08,footer:.08}}});
  ws.views=[{showGridLines:false}];
  ws.pageSetup.printTitlesRow='1:14';
- ws.columns=[{width:5},{width:20},{width:25},{width:13},{width:13},{width:15},{width:9},{width:10},{width:17},{width:18},{width:19}];
+ ws.columns=[{width:5},{width:11},{width:18},{width:28},{width:10},{width:12},{width:17},{width:7},{width:8},{width:20},{width:17},{width:18}];
  const logo=await signatureData('/serveone-logo.png');
  if(logo){const id=wb.addImage({buffer:logo.buffer as any,extension:'png'});ws.addImage(id,{tl:{col:0,row:0},ext:{width:180,height:27}})}
- ws.mergeCells('F1:K1');ws.getCell('F1').value=c.companyName;ws.getCell('F1').font={bold:true,size:14,color:{argb:TEXT}};ws.getCell('F1').alignment={horizontal:'right'};
- ws.mergeCells('F2:K3');ws.getCell('F2').value=c.companyAddress;ws.getCell('F2').font={size:8,color:{argb:MUTED}};ws.getCell('F2').alignment={horizontal:'right',vertical:'top',wrapText:true};
- ws.mergeCells('A4:K4');ws.getCell('A4').value='QUOTATION';ws.getCell('A4').font={bold:true,size:18,color:{argb:TEXT}};ws.getCell('A4').alignment={horizontal:'center',vertical:'middle'};ws.getRow(4).height=28;
+ ws.mergeCells('F1:L1');ws.getCell('F1').value=c.companyName;ws.getCell('F1').font={bold:true,size:14,color:{argb:TEXT}};ws.getCell('F1').alignment={horizontal:'right'};
+ ws.mergeCells('F2:L3');ws.getCell('F2').value=c.companyAddress;ws.getCell('F2').font={size:8,color:{argb:MUTED}};ws.getCell('F2').alignment={horizontal:'right',vertical:'top',wrapText:true};
+ ws.mergeCells('A4:L4');ws.getCell('A4').value='QUOTATION';ws.getCell('A4').font={bold:true,size:18,color:{argb:TEXT}};ws.getCell('A4').alignment={horizontal:'center',vertical:'middle'};ws.getRow(4).height=28;
 
  const left:[string,string][]=[['Quotation No.',q.quotation_no],['Date',c.quotationDate],['Validity',`${c.validityDays} Days`],['RFQ No.',c.rfqNo||'-'],['Sales PIC',c.salesName||'-'],['Email',c.salesEmail||'-'],['Phone Number',c.salesPhone||'-']];
  const right:[string,string][]=[['Attention',c.attention||'-'],['Client',c.clientName||'-'],['Address',c.address||'-']];
  const start=6;
  left.forEach(([k,v],i)=>{const r=start+i;ws.getCell(r,1).value=k;ws.getCell(r,2).value=':';ws.mergeCells(r,3,r,5);ws.getCell(r,3).value=v;ws.getCell(r,1).font={bold:true,color:{argb:MUTED}};ws.getCell(r,1).alignment={horizontal:'left',vertical:'top'};ws.getCell(r,2).alignment={horizontal:'center',vertical:'top'};ws.getCell(r,3).alignment={horizontal:'left',vertical:'top',wrapText:true};ws.getRow(r).height=13});
- right.forEach(([k,v],i)=>{const r=start+i;ws.getCell(r,7).value=k;ws.getCell(r,8).value=':';ws.mergeCells(r,9,r,11);ws.getCell(r,9).value=v;ws.getCell(r,7).font={bold:true,color:{argb:MUTED}};ws.getCell(r,7).alignment={horizontal:'left',vertical:'top'};ws.getCell(r,8).alignment={horizontal:'center',vertical:'top'};ws.getCell(r,9).alignment={horizontal:'left',vertical:'top',wrapText:true};if(k==='Address')ws.getRow(r).height=25});
+ right.forEach(([k,v],i)=>{const r=start+i;ws.getCell(r,8).value=k;ws.getCell(r,9).value=':';ws.mergeCells(r,10,r,12);ws.getCell(r,10).value=v;ws.getCell(r,8).font={bold:true,color:{argb:MUTED}};ws.getCell(r,8).alignment={horizontal:'left',vertical:'top'};ws.getCell(r,9).alignment={horizontal:'center',vertical:'top'};ws.getCell(r,10).alignment={horizontal:'left',vertical:'top',wrapText:true};if(k==='Address')ws.getRow(r).height=25});
 
- const headRow=14;const heads=['No','Item / Description','Specification','Brand','User','Lead Time (Days)','Qty','UOM','Unit Price (IDR)','Amount (IDR)','Remarks'];
+ const headRow=14;const heads=['No','Code','Item / Description','Specification','Brand','User','Lead Time','Qty','UOM','Unit Price (IDR)','Amount (IDR)','Remarks'];
  heads.forEach((h,i)=>{const cell=ws.getCell(headRow,i+1);cell.value=h;cell.font={bold:true,color:{argb:TEXT},size:10};cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:LIGHT}};cell.alignment={horizontal:'center',vertical:'middle',wrapText:true};cell.border={top:{style:'medium',color:{argb:SERVEONE_RED}},bottom:{style:'thin',color:{argb:GRID}}}});ws.getRow(headRow).height=27;
- c.items.forEach((it,idx)=>{const r=headRow+1+idx;const vals=[idx+1,it.productName,it.spec,it.brand,it.user,it.leadTime,it.qty,it.uom,it.unitPrice,it.qty*it.unitPrice,it.remarks];
+ c.items.forEach((it,idx)=>{const r=headRow+1+idx;const vals=[idx+1,it.code,it.productName,it.spec,it.brand,it.user,it.leadTime?`${it.leadTime} ${it.leadTimeUnit||'Days'}`:'',it.qty,it.uom,it.unitPrice,it.qty*it.unitPrice,it.remarks];
   vals.forEach((v,i)=>{const cell=ws.getCell(r,i+1);cell.value=v as any;cell.border={bottom:{style:'thin',color:{argb:GRID}}};cell.alignment={vertical:'top',wrapText:true};if(idx%2)cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:ZEBRA}};
-   if([0,1,2,3,4,10].includes(i))cell.alignment={vertical:'top',horizontal:i===0?'center':'left',wrapText:true};
-   if(i===5||i===7)cell.alignment={vertical:'top',horizontal:'center',wrapText:true};
-   if(i===6)cell.alignment={vertical:'top',horizontal:'right'};
-   if(i===8||i===9){cell.numFmt='#,##0';cell.alignment={vertical:'top',horizontal:'right'}}
-  });ws.getRow(r).height=28;
+   if([0,1,2,3,4,5,11].includes(i))cell.alignment={vertical:'top',horizontal:i===0?'center':'left',wrapText:true};
+   if(i===6||i===8)cell.alignment={vertical:'top',horizontal:'center',wrapText:true};
+   if(i===7)cell.alignment={vertical:'top',horizontal:'right'};
+   if(i===9||i===10){cell.numFmt='#,##0';cell.alignment={vertical:'top',horizontal:'right'}}
+  });const longChars=Math.max(String(it.productName||'').length/24,String(it.spec||'').length/38,String(it.remarks||'').length/24);ws.getRow(r).height=Math.max(28,Math.min(90,18+Math.ceil(longChars)*12));
  });
  let r=headRow+Math.max(c.items.length,1)+2;const subtotal=subtotalAmount(c),vat=vatAmount(c),grand=totalAmount(c);
  const totals=[['Total Amount',subtotal],['Total VAT '+c.vatRate+'%',vat],['Total Amount Including VAT',grand]] as const;
- totals.forEach(([label,value],i)=>{const rr=r+i;ws.mergeCells(rr,7,rr,8);ws.getCell(rr,7).value=label;ws.getCell(rr,7).font={bold:true,color:{argb:TEXT}};ws.getCell(rr,7).alignment={horizontal:'left',vertical:'middle'};ws.getCell(rr,9).value='IDR';ws.getCell(rr,9).font={bold:true,color:{argb:TEXT}};ws.getCell(rr,9).alignment={horizontal:'center'};ws.mergeCells(rr,10,rr,11);ws.getCell(rr,10).value=value;ws.getCell(rr,10).numFmt='#,##0';ws.getCell(rr,10).font={bold:true,color:{argb:TEXT}};ws.getCell(rr,10).alignment={horizontal:'right'};for(let cc=7;cc<=11;cc++)ws.getCell(rr,cc).border={top:{style:'thin',color:{argb:GRID}},bottom:{style:'thin',color:{argb:GRID}},left:{style:'thin',color:{argb:GRID}},right:{style:'thin',color:{argb:GRID}}}});
- r+=5;ws.mergeCells(r,1,r,6);ws.getCell(r,1).value='Notes';ws.getCell(r,1).font={bold:true,color:{argb:TEXT}};c.notes.forEach((n,i)=>{r++;ws.mergeCells(r,1,r,7);ws.getCell(r,1).value=`${i+1}. ${n}`;ws.getCell(r,1).alignment={wrapText:true,vertical:'top'}});
- const signRow=Math.max(r+2,headRow+c.items.length+8);ws.mergeCells(signRow,8,signRow,11);ws.getCell(signRow,8).value=`Jakarta, ${indonesiaToday()}`;ws.getCell(signRow,8).alignment={horizontal:'center'};ws.mergeCells(signRow+1,8,signRow+1,11);ws.getCell(signRow+1,8).value='President Director,';ws.getCell(signRow+1,8).alignment={horizontal:'center'};
- const sig=await signatureData(c.directorSignaturePath||'/signature-mr-herry.png');if(sig){const id=wb.addImage({buffer:sig.buffer as any,extension:sig.kind==='png'?'png':'jpeg'});ws.addImage(id,{tl:{col:8.15,row:signRow+1.5},ext:{width:150,height:68}})}
- ws.mergeCells(signRow+6,8,signRow+6,11);ws.getCell(signRow+6,8).value=c.directorName;ws.getCell(signRow+6,8).font={bold:true};ws.getCell(signRow+6,8).alignment={horizontal:'center'};
+ totals.forEach(([label,value],i)=>{const rr=r+i;ws.mergeCells(rr,8,rr,9);ws.getCell(rr,8).value=label;ws.getCell(rr,8).font={bold:true,color:{argb:TEXT}};ws.getCell(rr,8).alignment={horizontal:'left',vertical:'middle'};ws.getCell(rr,10).value='IDR';ws.getCell(rr,10).font={bold:true,color:{argb:TEXT}};ws.getCell(rr,10).alignment={horizontal:'center'};ws.mergeCells(rr,11,rr,12);ws.getCell(rr,11).value=value;ws.getCell(rr,11).numFmt='#,##0';ws.getCell(rr,11).font={bold:true,color:{argb:TEXT}};ws.getCell(rr,11).alignment={horizontal:'right'};for(let cc=8;cc<=12;cc++)ws.getCell(rr,cc).border={top:{style:'thin',color:{argb:GRID}},bottom:{style:'thin',color:{argb:GRID}},left:{style:'thin',color:{argb:GRID}},right:{style:'thin',color:{argb:GRID}}}});
+ r+=5;ws.mergeCells(r,1,r,8);ws.getCell(r,1).value='Notes';ws.getCell(r,1).font={bold:true,color:{argb:TEXT}};c.notes.forEach((n,i)=>{r++;ws.mergeCells(r,1,r,8);ws.getCell(r,1).value=`${i+1}. ${n}`;ws.getCell(r,1).alignment={wrapText:true,vertical:'top'}});
+ const signRow=Math.max(r+2,headRow+c.items.length+8);ws.mergeCells(signRow,9,signRow,12);ws.getCell(signRow,9).value=`Jakarta, ${indonesiaToday()}`;ws.getCell(signRow,9).alignment={horizontal:'center'};ws.mergeCells(signRow+1,9,signRow+1,12);ws.getCell(signRow+1,9).value='President Director,';ws.getCell(signRow+1,9).alignment={horizontal:'center'};
+ const stamp=await signatureData('/serveone-stamp.png');
+ if(stamp){const id=wb.addImage({buffer:stamp.buffer as any,extension:stamp.kind==='png'?'png':'jpeg'});ws.addImage(id,{tl:{col:7.2,row:signRow+2.35},ext:{width:118,height:39}})}
+ const sig=await signatureData(c.directorSignaturePath||'/signature-mr-herry.png');if(sig){const id=wb.addImage({buffer:sig.buffer as any,extension:sig.kind==='png'?'png':'jpeg'});ws.addImage(id,{tl:{col:9.0,row:signRow+1.5},ext:{width:150,height:68}})}
+ ws.mergeCells(signRow+6,9,signRow+6,12);ws.getCell(signRow+6,9).value=c.directorName;ws.getCell(signRow+6,9).font={bold:true};ws.getCell(signRow+6,9).alignment={horizontal:'center'};
  ws.eachRow(row=>row.eachCell(cell=>{cell.font={name:'Arial',size:9.5,color:{argb:TEXT},...cell.font}}));const b=await wb.xlsx.writeBuffer();return Buffer.from(b)
 }
 
@@ -63,8 +65,10 @@ export async function quotationPdf(q:StoredQuotation){
  const A4:[number,number]=[595.28,841.89],margin=32;
  const red=rgb(.78,0,.24),text=rgb(.12,.14,.17),muted=rgb(.35,.39,.45),line=rgb(.84,.86,.89),headerFill=rgb(.955,.96,.968),zebra=rgb(.982,.985,.99);
  const logo=await signatureData('/serveone-logo.png');
- let logoImage:any=null;
+ const stamp=await signatureData('/serveone-stamp.png');
+ let logoImage:any=null,stampImage:any=null;
  if(logo){try{logoImage=await pdf.embedPng(logo.buffer)}catch{}}
+ if(stamp){try{stampImage=stamp.kind==='png'?await pdf.embedPng(stamp.buffer):await pdf.embedJpg(stamp.buffer)}catch{}}
  let page=pdf.addPage(A4);let ctx:PdfCtx={page,regular,bold};
 
  const drawCompanyHeader=(withTitle=false)=>{
@@ -96,17 +100,18 @@ export async function quotationPdf(q:StoredQuotation){
 
  let y=632;
  const cols=[
-  {k:'no',h:'No',w:18,a:'left'},
-  {k:'item',h:'Item / Description',w:76,a:'left'},
-  {k:'spec',h:'Specification',w:100,a:'left'},
-  {k:'brand',h:'Brand',w:38,a:'left'},
-  {k:'user',h:'User',w:40,a:'left'},
-  {k:'lead',h:'Lead Time\n(Days)',w:42,a:'center'},
-  {k:'qty',h:'Qty',w:25,a:'right'},
-  {k:'uom',h:'UOM',w:30,a:'center'},
-  {k:'price',h:'Unit Price\n(IDR)',w:52,a:'right'},
-  {k:'amount',h:'Amount\n(IDR)',w:56,a:'right'},
-  {k:'remarks',h:'Remarks',w:54,a:'left'}
+  {k:'no',h:'No',w:17,a:'left'},
+  {k:'code',h:'Code',w:32,a:'left'},
+  {k:'item',h:'Item / Description',w:70,a:'left'},
+  {k:'spec',h:'Specification',w:108,a:'left'},
+  {k:'brand',h:'Brand',w:28,a:'left'},
+  {k:'user',h:'User',w:32,a:'left'},
+  {k:'lead',h:'Lead Time',w:48,a:'center'},
+  {k:'qty',h:'Qty',w:18,a:'right'},
+  {k:'uom',h:'UOM',w:23,a:'center'},
+  {k:'price',h:'Unit Price\n(IDR)',w:62,a:'right'},
+  {k:'amount',h:'Amount\n(IDR)',w:50,a:'right'},
+  {k:'remarks',h:'Remarks',w:43,a:'left'}
  ] as const;
  const tableW=cols.reduce((sum,col)=>sum+col.w,0);
  const drawTableHeader=()=>{
@@ -128,7 +133,7 @@ export async function quotationPdf(q:StoredQuotation){
  const cellLines=(v:string,size:number,w:number)=>pdfWrap(regular,v,size,Math.max(8,w-5));
  for(let i=0;i<c.items.length;i++){
    const it=c.items[i];
-   const values:any={no:String(i+1),item:it.productName||'',spec:it.spec||'',brand:it.brand||'',user:it.user||'',lead:it.leadTime||'',qty:String(it.qty||''),uom:it.uom||'',price:it.unitPrice||0,amount:(it.qty||0)*(it.unitPrice||0),remarks:it.remarks||''};
+   const values:any={no:String(i+1),code:it.code||'',item:it.productName||'',spec:it.spec||'',brand:it.brand||'',user:it.user||'',lead:it.leadTime?`${it.leadTime} ${it.leadTimeUnit||'Days'}`:'',qty:String(it.qty||''),uom:it.uom||'',price:it.unitPrice||0,amount:(it.qty||0)*(it.unitPrice||0),remarks:it.remarks||''};
    const textCols=cols.map(col=>(col.k==='price'||col.k==='amount')?[]:cellLines(String(values[col.k]??''),7.0,col.w));
    const lineCount=Math.max(1,...textCols.map(lines=>lines.length));
    const rowH=Math.max(23,lineCount*9.0+5);
@@ -169,6 +174,7 @@ export async function quotationPdf(q:StoredQuotation){
  const signatureTop=Math.max(95,y-4);
  drawLines(ctx,[`Jakarta, ${indonesiaToday()}`],365,signatureTop,7.6,180,false,'center',text);
  drawLines(ctx,['President Director,'],365,signatureTop-15,7.6,180,false,'center',text);
+ if(stampImage)page.drawImage(stampImage,{x:308,y:signatureTop-72,width:112,height:37});
  const sig=await signatureData(c.directorSignaturePath||'/signature-mr-herry.png');
  if(sig){try{const img=sig.kind==='png'?await pdf.embedPng(sig.buffer):await pdf.embedJpg(sig.buffer);page.drawImage(img,{x:390,y:signatureTop-84,width:130,height:66})}catch{}}
  drawLines(ctx,[c.directorName],365,signatureTop-96,8.2,180,true,'center',text);
@@ -176,7 +182,7 @@ export async function quotationPdf(q:StoredQuotation){
 }
 
 export async function historyXlsx(rows:StoredQuotation[]){
- const wb=new ExcelJS.Workbook(),ws=wb.addWorksheet('Quotation List');ws.columns=[{header:'No',key:'list_no',width:8},{header:'Quotation No.',key:'quotation',width:24},{header:'Date',key:'date',width:14},{header:'Client',key:'client',width:28},{header:'Sales PIC',key:'sales',width:22},{header:'Item No',key:'item_no',width:8},{header:'Item / Description',key:'item',width:30},{header:'Specification',key:'spec',width:32},{header:'Brand',key:'brand',width:18},{header:'User',key:'user',width:18},{header:'Lead Time (Days)',key:'lead',width:16},{header:'Qty',key:'qty',width:10},{header:'UOM',key:'uom',width:10},{header:'Unit Price',key:'price',width:18},{header:'Amount',key:'amount',width:18},{header:'Remarks',key:'remarks',width:34}];
- rows.forEach((q,group)=>{const items=q.content?.items?.length?q.content.items:[null];items.forEach((item,index)=>{const row=ws.addRow({list_no:index===0?group+1:'',quotation:q.quotation_no,date:q.quotation_date,client:q.client_name,sales:q.sales_name,item_no:item?index+1:'',item:item?.productName||'',spec:item?.spec||'',brand:item?.brand||'',user:item?.user||'',lead:item?.leadTime||'',qty:item?.qty||'',uom:item?.uom||'',price:item?.unitPrice||'',amount:item?(item.qty||0)*(item.unitPrice||0):'',remarks:item?.remarks||''});if(group%2)row.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF3F6FA'}}})});
- ws.getRow(1).font={bold:true,color:{argb:TEXT}};ws.getRow(1).fill={type:'pattern',pattern:'solid',fgColor:{argb:LIGHT}};ws.getRow(1).alignment={horizontal:'center',vertical:'middle',wrapText:true};ws.getColumn('price').numFmt='"IDR"* #,##0';ws.getColumn('amount').numFmt='"IDR"* #,##0';ws.autoFilter={from:'A1',to:'P1'};ws.views=[{state:'frozen',ySplit:1}];return Buffer.from(await wb.xlsx.writeBuffer())
+ const wb=new ExcelJS.Workbook(),ws=wb.addWorksheet('Quotation List');ws.columns=[{header:'No',key:'list_no',width:8},{header:'Quotation No.',key:'quotation',width:24},{header:'Date',key:'date',width:14},{header:'Client',key:'client',width:28},{header:'Sales PIC',key:'sales',width:22},{header:'Item No',key:'item_no',width:8},{header:'Code',key:'code',width:14},{header:'Item / Description',key:'item',width:30},{header:'Specification',key:'spec',width:32},{header:'Brand',key:'brand',width:18},{header:'User',key:'user',width:18},{header:'Lead Time',key:'lead',width:18},{header:'Qty',key:'qty',width:10},{header:'UOM',key:'uom',width:10},{header:'Unit Price',key:'price',width:18},{header:'Amount',key:'amount',width:18},{header:'Remarks',key:'remarks',width:34}];
+ rows.forEach((q,group)=>{const items=q.content?.items?.length?q.content.items:[null];items.forEach((item,index)=>{const row=ws.addRow({list_no:index===0?group+1:'',quotation:q.quotation_no,date:q.quotation_date,client:q.client_name,sales:q.sales_name,item_no:item?index+1:'',code:item?.code||'',item:item?.productName||'',spec:item?.spec||'',brand:item?.brand||'',user:item?.user||'',lead:item?.leadTime?`${item.leadTime} ${item.leadTimeUnit||'Days'}`:'',qty:item?.qty||'',uom:item?.uom||'',price:item?.unitPrice||'',amount:item?(item.qty||0)*(item.unitPrice||0):'',remarks:item?.remarks||''});if(group%2)row.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF3F6FA'}}})});
+ ws.getRow(1).font={bold:true,color:{argb:TEXT}};ws.getRow(1).fill={type:'pattern',pattern:'solid',fgColor:{argb:LIGHT}};ws.getRow(1).alignment={horizontal:'center',vertical:'middle',wrapText:true};ws.getColumn('price').numFmt='"IDR"* #,##0';ws.getColumn('amount').numFmt='"IDR"* #,##0';ws.autoFilter={from:'A1',to:'Q1'};ws.views=[{state:'frozen',ySplit:1}];return Buffer.from(await wb.xlsx.writeBuffer())
 }
