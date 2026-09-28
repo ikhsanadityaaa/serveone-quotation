@@ -105,3 +105,8 @@ The Rows-per-page selector is positioned immediately to the left of the Previous
 ## V37 updates
 - UOM in Create Quotation is now a true searchable dropdown with a compact arrow control; cells still display only the selected UOM code while the dropdown shows code + description.
 - Items Action column remains pinned at the far right and its action buttons no longer change styling on hover.
+
+### V38
+- UOM is a compact searchable dropdown with a blank search box each time it opens.
+- UOM control visually follows the compact Lead Time control pattern.
+- Items Actions column was removed completely.
