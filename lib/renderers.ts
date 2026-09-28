@@ -121,9 +121,9 @@ export async function quotationPdf(q:StoredQuotation){
   {k:'lead',h:'Lead Time',w:38,a:'center'},
   {k:'qty',h:'Qty',w:25,a:'right'},
   {k:'uom',h:'UOM',w:23,a:'center'},
-  {k:'price',h:'Unit Price\n(IDR)',w:50,a:'right'},
+  {k:'price',h:'Unit Price\n(IDR)',w:46,a:'right'},
   {k:'amount',h:'Amount\n(IDR)',w:50,a:'right'},
-  {k:'remarks',h:'Remarks',w:55,a:'left'}
+  {k:'remarks',h:'Remarks',w:59,a:'left'}
  ] as const;
  const tableW=cols.reduce((sum,col)=>sum+col.w,0);
  const drawTableHeader=()=>{

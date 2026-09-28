@@ -629,8 +629,8 @@ input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!impor
 .sheet td.range-selected{background:#eaf2ff!important;box-shadow:inset 0 0 0 1px rgba(23,105,255,.38)!important}
 .sheet td.cell-focus.range-selected{outline:2px solid var(--blue)!important;outline-offset:-2px!important}
 .sheet.range-selecting,.sheet.range-selecting input,.sheet.range-selecting textarea,.sheet.range-selecting select{user-select:none!important;-webkit-user-select:none!important}
-.sheet td.remarks-cell,.sheet td.remarks-cell textarea.remarks-input{text-align:center!important}
-.sheet td.remarks-cell textarea.remarks-input{padding-left:8px!important;padding-right:8px!important}
+.sheet td.remarks-cell{vertical-align:middle!important;text-align:left!important}
+.sheet td.remarks-cell textarea.remarks-input{display:block!important;text-align:left!important;vertical-align:middle!important;margin-top:auto!important;margin-bottom:auto!important;padding-left:8px!important;padding-right:8px!important}
 
 /* Quotation List gets its own vertical viewport so the header stays frozen. */
 .quotation-scroll-shell{position:relative;width:100%;min-width:0}
