@@ -30,8 +30,8 @@ export default function HistoryApp(){
  const [rows,setRows]=useState<StoredQuotation[]>([]),[search,setSearch]=useState(''),[appliedSearch,setAppliedSearch]=useState(''),[sales,setSales]=useState<string[]>([]),[clients,setClients]=useState<string[]>([]),[loading,setLoading]=useState(true),[loadingLabel,setLoadingLabel]=useState('Loading Quotation List...'),[msg,setMsg]=useState('');
  const [page,setPage]=useState(1),[pageSize,setPageSize]=useState(15),[selectedIds,setSelectedIds]=useState<Set<string>>(new Set());
  const [deleteConfirm,setDeleteConfirm]=useState(false);
- const historyWrapRef=useRef<HTMLDivElement>(null),hoverScrollRef=useRef<HTMLDivElement>(null);
- const [scrollMetrics,setScrollMetrics]=useState({width:0,client:0});
+ const historyWrapRef=useRef<HTMLDivElement>(null),floatingScrollRef=useRef<HTMLDivElement>(null);
+ const [floatingUi,setFloatingUi]=useState({barVisible:false,headerVisible:false,left:0,width:0,scrollLeft:0,tableWidth:0,headerWidths:[] as number[]});
  async function load(){setLoadingLabel('Loading Quotation List...');setLoading(true);try{const r=await fetch('/api/history',{cache:'no-store'}),j=await r.json();if(r.ok)setRows(j);else setMsg(j.error||'Failed to load')}finally{setLoading(false)}}
  useEffect(()=>{void load()},[]);
  const searchTerms=useMemo(()=>appliedSearch.split(/\r?\n/).map(x=>x.trim().toLowerCase()).filter(Boolean),[appliedSearch]);
@@ -54,8 +54,32 @@ export default function HistoryApp(){
  useEffect(()=>{if(page>totalPages)setPage(totalPages)},[page,totalPages]);
  useEffect(()=>{const allowed=new Set(filtered.map(q=>q.id));setSelectedIds(current=>{const next=new Set([...current].filter(id=>allowed.has(id)));return next.size===current.size&&[...next].every(id=>current.has(id))?current:next})},[filtered]);
 
- useEffect(()=>{const wrap=historyWrapRef.current;if(!wrap)return;const update=()=>setScrollMetrics({width:wrap.scrollWidth,client:wrap.clientWidth});const syncMain=()=>{if(hoverScrollRef.current&&Math.abs(hoverScrollRef.current.scrollLeft-wrap.scrollLeft)>1)hoverScrollRef.current.scrollLeft=wrap.scrollLeft};update();const ro=typeof ResizeObserver!=='undefined'?new ResizeObserver(update):null;ro?.observe(wrap);const table=wrap.querySelector('table');if(table)ro?.observe(table);wrap.addEventListener('scroll',syncMain);window.addEventListener('resize',update);return()=>{ro?.disconnect();wrap.removeEventListener('scroll',syncMain);window.removeEventListener('resize',update)}},[tableRows.length,pageSize,safePage]);
- const syncHoverScroll=()=>{if(historyWrapRef.current&&hoverScrollRef.current&&Math.abs(historyWrapRef.current.scrollLeft-hoverScrollRef.current.scrollLeft)>1)historyWrapRef.current.scrollLeft=hoverScrollRef.current.scrollLeft};
+ useEffect(()=>{
+  const wrap=historyWrapRef.current;if(!wrap)return;
+  const table=wrap.querySelector('table');const thead=table?.querySelector('thead');
+  let frame=0;
+  const update=()=>{
+   cancelAnimationFrame(frame);
+   frame=requestAnimationFrame(()=>{
+    const rect=wrap.getBoundingClientRect();
+    const tableRect=table?.getBoundingClientRect();
+    const headRect=thead?.getBoundingClientRect();
+    const left=Math.max(0,rect.left),right=Math.min(window.innerWidth,rect.right),width=Math.max(0,right-left);
+    const tableWidth=wrap.scrollWidth;
+    const barVisible=tableWidth>wrap.clientWidth+1&&rect.top<window.innerHeight&&rect.bottom>0&&width>0;
+    const headerHeight=headRect?.height||0;
+    const headerVisible=Boolean(headRect&&tableRect&&headRect.top<0&&tableRect.bottom>headerHeight&&width>0);
+    const headerWidths=thead?[...thead.querySelectorAll('th')].map(cell=>cell.getBoundingClientRect().width):[];
+    setFloatingUi({barVisible,headerVisible,left,width,scrollLeft:wrap.scrollLeft,tableWidth,headerWidths});
+    if(floatingScrollRef.current&&Math.abs(floatingScrollRef.current.scrollLeft-wrap.scrollLeft)>1)floatingScrollRef.current.scrollLeft=wrap.scrollLeft;
+   });
+  };
+  update();
+  const ro=typeof ResizeObserver!=='undefined'?new ResizeObserver(update):null;ro?.observe(wrap);if(table)ro?.observe(table);
+  wrap.addEventListener('scroll',update,{passive:true});window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);
+  return()=>{cancelAnimationFrame(frame);ro?.disconnect();wrap.removeEventListener('scroll',update);window.removeEventListener('scroll',update);window.removeEventListener('resize',update)};
+ },[tableRows.length,pageSize,safePage]);
+ const syncFloatingScroll=()=>{if(historyWrapRef.current&&floatingScrollRef.current&&Math.abs(historyWrapRef.current.scrollLeft-floatingScrollRef.current.scrollLeft)>1)historyWrapRef.current.scrollLeft=floatingScrollRef.current.scrollLeft};
  async function download(mode:'all'|'latest'){
   setMsg('');setLoadingLabel(mode==='latest'?'Preparing latest quotations Excel...':'Preparing all quotations Excel...');setLoading(true);
   try{const source=mode==='latest'?latestForFiltered:filtered;const r=await fetch('/api/history/export',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ids:source.map(x=>x.id)})});if(!r.ok)return setMsg(await r.text());const b=await r.blob(),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=mode==='latest'?'quotation-list-latest.xlsx':'quotation-list-all.xlsx';a.click();URL.revokeObjectURL(u)}finally{setLoading(false)}
@@ -66,15 +90,27 @@ export default function HistoryApp(){
  const applySearch=()=>{setAppliedSearch(search);setPage(1)};
  const toggleSelected=(id:string)=>setSelectedIds(current=>{const next=new Set(current);if(next.has(id))next.delete(id);else next.add(id);return next});
  const togglePage=()=>setSelectedIds(current=>{const next=new Set(current);if(allPageSelected)pageIds.forEach(id=>next.delete(id));else pageIds.forEach(id=>next.add(id));return next});
+ const historyHeaders=[
+  {key:'select',className:'select-col',content:<input type="checkbox" aria-label="Select quotations on this page" checked={allPageSelected} onChange={togglePage}/>},
+  {key:'reload',className:'reload-col',content:'Reload'},
+  {key:'no',className:'rowno',content:'No'},
+  {key:'latest',className:'latest-quo-col',content:'Latest Quo'},
+  {key:'quotation',content:'Quotation No.'},{key:'date',content:'Date'},{key:'client',content:'Client'},{key:'sales',content:'Sales PIC'},
+  {key:'itemno',className:'rowno',content:'Item No'},{key:'code',content:'Code'},{key:'item',content:'Item / Description'},{key:'spec',content:'Specification'},
+  {key:'brand',content:'Brand'},{key:'user',content:'User'},{key:'lead',content:'Lead Time'},{key:'qty',content:'Qty'},{key:'uom',content:'UOM'},
+  {key:'unitprice',content:'Unit Price'},{key:'amount',content:'Amount'},{key:'remarks',content:'Remarks'}
+ ];
  return <>
  <LoadingOverlay show={loading} label={loadingLabel}/>
  <header className="page-head"><div><h1>Quotation List</h1><p>Search, filter, reload, print, or delete quotation records.</p></div><div className="head-actions"><button className="btn ghost icon-btn" onClick={load}><UiIcon name="refresh"/>Refresh</button></div></header>{msg&&<div className="notice">{msg}</div>}
  <section className="summary-grid"><div><small>Clients</small><b>{summary.clients}</b></div><div><small>Quotes</small><b>{summary.quotes}</b></div><div><small>Amount</small><b>IDR {compactAmount(summary.amount)}</b></div></section>
  <section className="panel"><div className="list-tools aligned-list-tools"><div className="filters toolbar-row"><SearchPopover value={search} onChange={setSearch} onSearch={applySearch} onClear={()=>{setSearch('');setAppliedSearch('');setPage(1)}}/><MultiCheckFilter label="Sales PIC" values={salesOptions} selected={sales} onChange={v=>{setSales(v);setPage(1)}}/><MultiCheckFilter label="Client" values={clientOptions} selected={clients} onChange={v=>{setClients(v);setPage(1)}}/>{(sales.length||clients.length||appliedSearch)&&<button className="btn ghost toolbar-btn" onClick={clear}>Clear Filters</button>}<div className="list-toolbar-spacer"/><button className="selection-action-button selection-delete" title="Delete selected" aria-label="Delete selected quotations" disabled={!selectedQuotes.length} onClick={()=>setDeleteConfirm(true)}><UiIcon name="trash" size={20}/></button><button className="selection-action-button selection-print" title="Print selected" aria-label="Print selected quotations" disabled={!selectedQuotes.length} onClick={()=>void printSelected()}><UiIcon name="print" size={20}/></button><details className="download-choice"><summary className="btn excel icon-btn list-download"><UiIcon name="download"/>Download Excel</summary><div className="download-choice-menu"><button type="button" onClick={e=>{e.currentTarget.closest('details')?.removeAttribute('open');void download('all')}}>All Quotation</button><button type="button" onClick={e=>{e.currentTarget.closest('details')?.removeAttribute('open');void download('latest')}}>Latest Quotation Only</button></div></details></div></div>
- <div className="quotation-scroll-shell"><div ref={hoverScrollRef} className={`quotation-hover-scroll ${scrollMetrics.width>scrollMetrics.client?'has-overflow':''}`} onScroll={syncHoverScroll} aria-hidden="true"><div style={{width:scrollMetrics.width||1,height:1}}/></div><div ref={historyWrapRef} className="history-wrap quotation-sheet-wrap"><table className="history-table item-history quotation-sheet selection-history"><thead><tr><th className="select-col"><input type="checkbox" aria-label="Select quotations on this page" checked={allPageSelected} onChange={togglePage}/></th><th className="reload-col">Reload</th><th className="rowno">No</th><th className="latest-quo-col">Latest Quo</th><th>Quotation No.</th><th>Date</th><th>Client</th><th>Sales PIC</th><th className="rowno">Item No</th><th>Code</th><th>Item / Description</th><th>Specification</th><th>Brand</th><th>User</th><th>Lead Time</th><th>Qty</th><th>UOM</th><th>Unit Price</th><th>Amount</th><th>Remarks</th></tr></thead><tbody>{tableRows.length?tableRows.map(({quote,item,itemIndex,groupIndex,rowSpan})=>{const first=itemIndex===0;const k=baseKey(quote);const latest=latestByBase.get(k)?.id===quote.id;const revised=(groupCounts.get(k)||0)>1||revNo(quote)>0;return <tr key={`${quote.id}-${itemIndex}`} className={`${groupIndex%2?'quote-group-alt':'quote-group-base'} ${first?'quote-group-start':''}`}>
+ <div className="quotation-scroll-shell"><div ref={historyWrapRef} className="history-wrap quotation-sheet-wrap"><table className="history-table item-history quotation-sheet selection-history"><thead><tr>{historyHeaders.map(h=><th key={h.key} className={h.className}>{h.content}</th>)}</tr></thead><tbody>{tableRows.length?tableRows.map(({quote,item,itemIndex,groupIndex,rowSpan})=>{const first=itemIndex===0;const k=baseKey(quote);const latest=latestByBase.get(k)?.id===quote.id;const revised=(groupCounts.get(k)||0)>1||revNo(quote)>0;return <tr key={`${quote.id}-${itemIndex}`} className={`${groupIndex%2?'quote-group-alt':'quote-group-base'} ${first?'quote-group-start':''}`}>
  {first&&<><td className="select-col merged-cell" rowSpan={rowSpan}><input type="checkbox" aria-label={`Select ${quote.quotation_no}`} checked={selectedIds.has(quote.id)} onChange={()=>toggleSelected(quote.id)}/></td><td className="reload-col merged-cell" rowSpan={rowSpan}><button className="icon-only-button reload-icon" title="Muat Ulang" aria-label={`Muat Ulang ${quote.quotation_no}`} onClick={()=>router.push(`/?reload=${quote.id}`)}><UiIcon name="refresh" size={16}/></button></td><td className="rowno merged-cell" rowSpan={rowSpan}>{(safePage-1)*pageSize+groupIndex+1}</td><td className="latest-quo-col merged-cell" rowSpan={rowSpan}>{latest&&revised?<span className="latest-quo-badge">Latest</span>:''}</td><td className="merged-cell" rowSpan={rowSpan}><b>{quote.quotation_no}</b></td><td className="merged-cell" rowSpan={rowSpan}>{quote.quotation_date}</td><td className="merged-cell" rowSpan={rowSpan}>{quote.client_name}</td><td className="merged-cell" rowSpan={rowSpan}>{quote.sales_name}</td></>}
  <td className="rowno">{itemIndex+1}</td><td>{item?.code||''}</td><td className="item-desc-cell">{item?.productName||''}</td><td className="spec-cell">{item?.spec||''}</td><td className="brand-cell">{item?.brand||''}</td><td>{item?.user||''}</td><td className="center-cell">{item?.leadTime?`${item.leadTime} ${item.leadTimeUnit||'Days'}`:''}</td><td className="qty-cell">{item?.qty?idr.format(item.qty):''}</td><td className="center-cell">{item?.uom||''}</td><td className="num unit-price-value">{item?`IDR ${idr.format(item.unitPrice||0)}`:''}</td><td className="num amount-value">{item?`IDR ${idr.format((item.qty||0)*(item.unitPrice||0))}`:''}</td><td className="history-remark readonly-remark">{item?.remarks||''}</td>
  </tr>}) :<tr><td colSpan={20} className="empty-table">No quotation matches the current filters.</td></tr>}</tbody></table></div></div>
+ {floatingUi.headerVisible&&<div className="quotation-floating-header" style={{left:floatingUi.left,width:floatingUi.width}}><table className="history-table item-history quotation-sheet selection-history quotation-floating-header-table" style={{width:floatingUi.tableWidth,transform:`translateX(${-floatingUi.scrollLeft}px)`}}><thead><tr>{historyHeaders.map((h,i)=>{const w=floatingUi.headerWidths[i];return <th key={h.key} className={h.className} style={w?{width:w,minWidth:w,maxWidth:w}:undefined}>{h.content}</th>})}</tr></thead></table></div>}
+ {floatingUi.barVisible&&<div ref={floatingScrollRef} className="quotation-floating-scroll" style={{left:floatingUi.left,width:floatingUi.width}} onScroll={syncFloatingScroll} aria-label="Horizontal quotation table scrollbar"><div style={{width:floatingUi.tableWidth||1,height:1}}/></div>}
  <PaginationBar page={safePage} pageSize={pageSize} total={filtered.length} onPageChange={setPage} onPageSizeChange={size=>{setPageSize(size);setPage(1)}}/>
  <ConfirmDialog open={deleteConfirm} detail={selectedQuotes.length?`${selectedQuotes.length} selected quotation(s) will be deleted. Quotation numbers will not be reused.`:undefined} onCancel={()=>setDeleteConfirm(false)} onYes={()=>void deleteSelected()}/>
  </section></>

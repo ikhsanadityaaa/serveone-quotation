@@ -137,3 +137,8 @@ The Rows-per-page selector is positioned immediately to the left of the Previous
 - Signature date now follows the quotation Date field exactly.
 
 No new SQL is required for V42. V41 revision SQL is still required if it has not already been applied.
+
+## V44 changes
+- Remarks cells are vertically centered within taller item rows while remaining left-aligned.
+- Mouse drag inside editable inputs/textareas (including Qty) now selects characters normally, so partial values can be deleted or replaced.
+- Dragging from an editable cell into another cell still switches to rectangular spreadsheet range selection.
