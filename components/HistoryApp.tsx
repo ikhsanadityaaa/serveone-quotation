@@ -90,7 +90,25 @@ export default function HistoryApp(){
   try{const source=mode==='latest'?latestForFiltered:filtered;const r=await fetch('/api/history/export',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ids:source.map(x=>x.id)})});if(!r.ok)return setMsg(await r.text());const b=await r.blob(),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=mode==='latest'?'quotation-list-latest.xlsx':'quotation-list-all.xlsx';a.click();URL.revokeObjectURL(u)}finally{setLoading(false)}
  }
  async function deleteSelected(){if(!selectedQuotes.length)return;setDeleteConfirm(false);setMsg('');setLoadingLabel('Deleting selected quotations...');setLoading(true);try{const r=await fetch('/api/history/batch',{method:'DELETE',headers:{'content-type':'application/json'},body:JSON.stringify({ids:selectedQuotes.map(q=>q.id)})});const j=await r.json().catch(()=>({}));if(!r.ok)return setMsg(j.error||'Failed to delete selected quotations');setSelectedIds(new Set());setMsg(`${selectedQuotes.length} quotation(s) deleted. Running numbers remain reserved.`);await load()}finally{setLoading(false)}}
- async function printSelected(){if(!selectedQuotes.length)return;setMsg('');setLoadingLabel('Preparing selected quotations...');setLoading(true);try{const r=await fetch('/api/history/print',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ids:selectedQuotes.map(q=>q.id)})});if(!r.ok)return setMsg(await r.text());const b=await r.blob(),u=URL.createObjectURL(b);const w=window.open(u,'_blank');if(w)w.opener=null;else{const a=document.createElement('a');a.href=u;a.download='selected-quotations.pdf';a.click()}setTimeout(()=>URL.revokeObjectURL(u),60000)}finally{setLoading(false)}}
+ function printSelected(){
+  if(!selectedQuotes.length)return;
+  setMsg('');
+  // Submit directly to the PDF endpoint so Chrome receives Content-Disposition
+  // and keeps the quotation number as the document filename instead of a blob UUID.
+  const form=document.createElement('form');
+  form.method='POST';
+  form.action='/api/history/print';
+  form.target='_blank';
+  form.style.display='none';
+  const input=document.createElement('input');
+  input.type='hidden';
+  input.name='ids';
+  input.value=JSON.stringify(selectedQuotes.map(q=>q.id));
+  form.appendChild(input);
+  document.body.appendChild(form);
+  form.submit();
+  form.remove();
+ }
  const clear=()=>{setSales([]);setClients([]);setSearch('');setAppliedSearch('');setPage(1)};
  const applySearch=()=>{setAppliedSearch(search);setPage(1)};
  const toggleSelected=(id:string)=>setSelectedIds(current=>{const next=new Set(current);if(next.has(id))next.delete(id);else next.add(id);return next});
