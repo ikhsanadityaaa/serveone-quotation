@@ -88,3 +88,8 @@ The Rows-per-page selector is positioned immediately to the left of the Previous
 - Batch Add Client Data now provides one scrollable 3,000-row grid with no pagination.
 - The grid uses virtual scrolling so only the visible rows are mounted, while paste/save still handles up to 3,000 rows.
 - Client batch paste updates only affected rows in memory and the API continues bulk/chunk database writes for speed.
+
+## V32
+- Create Quotation Attention is now a typeable combobox.
+- If the typed Attention does not exist for the selected Client, an Add button appears.
+- Add saves the new Attention directly to the selected Client and refreshes the local Attention list immediately.

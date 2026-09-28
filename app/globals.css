@@ -406,3 +406,15 @@ input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!impor
 .sheet-actions-buttons .remove-row{color:#c53343}
 .sheet-actions-buttons .remove-row:hover{background:#fff0f1;color:#a8192a}
 @media(max-width:1300px){.sheet-canvas,.sheet-canvas .sheet{min-width:1126px!important}}
+
+/* V32: creatable Attention field in Create Quotation. */
+.creatable-attention{position:relative}
+.creatable-input-wrap{position:relative}
+.creatable-input-wrap>input{font-weight:400!important;color:#243247;padding-right:76px}
+.creatable-input-wrap .attention-add-btn{position:absolute;right:5px;top:50%;transform:translateY(-50%);border:0;border-radius:7px;background:var(--blue);color:#fff;font-size:12px;font-weight:700;padding:6px 11px;line-height:1;box-shadow:none}
+.creatable-input-wrap .attention-add-btn:hover{background:var(--blue2)}
+.creatable-input-wrap .attention-add-btn:disabled{opacity:.65;cursor:default}
+.creatable-attention.filled-field .creatable-input-wrap>input{background:#fff!important;border-color:#2f9d68!important;box-shadow:0 0 0 2px rgba(47,157,104,.20)!important}
+.creatable-attention.field-error .creatable-input-wrap>input{background:#fff!important;border-color:var(--red)!important;box-shadow:0 0 0 2px rgba(197,51,67,.18)!important}
+.creatable-attention.field-error>label{color:#b42335!important}
+.attention-popover{top:calc(100% + 5px)}
