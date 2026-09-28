@@ -621,3 +621,35 @@ input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!impor
 .download-choice-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:80;min-width:210px;padding:6px;background:#fff;border:1px solid #dce3eb;border-radius:10px;box-shadow:0 12px 28px rgba(20,36,61,.18)}
 .download-choice-menu button{display:block;width:100%;border:0;background:#fff;color:#2d3b50;text-align:left;padding:9px 10px;border-radius:7px;font-size:12px;font-weight:700}
 .download-choice-menu button:hover{background:#eef5ff;color:#174f9c}
+
+/* V42: Excel-like grid selection/paste, synchronized item-row height, quotation-list frozen header + hover scrollbar. */
+.sheet tbody tr[data-item-row]{height:auto}
+.sheet tbody tr[data-item-row]>td{height:100%!important}
+.sheet tbody td.rowno{height:auto!important;vertical-align:middle!important}
+.sheet td.range-selected{background:#eaf2ff!important;box-shadow:inset 0 0 0 1px rgba(23,105,255,.38)!important}
+.sheet td.cell-focus.range-selected{outline:2px solid var(--blue)!important;outline-offset:-2px!important}
+.sheet.range-selecting,.sheet.range-selecting input,.sheet.range-selecting textarea,.sheet.range-selecting select{user-select:none!important;-webkit-user-select:none!important}
+.sheet td.remarks-cell,.sheet td.remarks-cell textarea.remarks-input{text-align:center!important}
+.sheet td.remarks-cell textarea.remarks-input{padding-left:8px!important;padding-right:8px!important}
+
+/* Quotation List gets its own vertical viewport so the header stays frozen. */
+.quotation-scroll-shell{position:relative;width:100%;min-width:0}
+.quotation-sheet-wrap{max-height:clamp(360px,62vh,680px)!important;overflow:auto!important;overscroll-behavior:contain}
+.quotation-sheet thead th{position:sticky!important;top:0!important;z-index:12!important;text-align:center!important;background:#e9eff7!important}
+.quotation-sheet thead th.reload-col{z-index:13!important}
+
+/* Thin horizontal scrollbar appears above the list on hover, synced to the table. */
+.quotation-hover-scroll{height:14px;width:100%;overflow-x:auto;overflow-y:hidden;opacity:0;pointer-events:none;transition:opacity .15s ease;margin:0 0 4px;scrollbar-width:thin}
+.quotation-hover-scroll.has-overflow{display:block}
+.quotation-hover-scroll:not(.has-overflow){display:none}
+.quotation-scroll-shell:hover .quotation-hover-scroll.has-overflow{opacity:1;pointer-events:auto}
+.quotation-hover-scroll::-webkit-scrollbar{height:10px}
+.quotation-hover-scroll::-webkit-scrollbar-track{background:#eef2f6;border-radius:999px}
+.quotation-hover-scroll::-webkit-scrollbar-thumb{background:#aeb9c7;border-radius:999px;border:2px solid #eef2f6}
+
+/* Quotation List body alignment: headers remain centered. */
+.quotation-sheet td.item-desc-cell,.quotation-sheet td.spec-cell{text-align:left!important;white-space:normal!important;overflow-wrap:anywhere!important;vertical-align:top!important}
+.quotation-sheet td.brand-cell{text-align:center!important}
+.quotation-sheet td.qty-cell{text-align:center!important;font-variant-numeric:tabular-nums}
+.quotation-sheet td.amount-value{text-align:right!important;font-variant-numeric:tabular-nums}
+.quotation-sheet td.unit-price-value{text-align:right!important;font-variant-numeric:tabular-nums}

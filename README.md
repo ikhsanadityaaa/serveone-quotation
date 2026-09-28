@@ -123,3 +123,17 @@ The Rows-per-page selector is positioned immediately to the left of the Previous
 - UOM is a compact searchable dropdown with a blank search box each time it opens.
 - UOM control visually follows the compact Lead Time control pattern.
 - Items Actions column was removed completely.
+
+## V42 changes
+- Items grid supports direct Excel paste into Lead Time, Qty, and Unit Price with numeric validation; invalid pasted values show an English numbers-only warning.
+- Fixed Unit Price paste draft-state issue that could make pasted values appear one row lower.
+- Mouse drag can select a rectangular range of editable item cells; Delete/Backspace clears the selected range.
+- Wrapped item rows synchronize the full row height across all columns.
+- Item Remarks is horizontally centered.
+- Quotation List uses a frozen header inside its own scroll viewport and a synchronized horizontal scrollbar that appears above the table on hover.
+- Quotation List alignment: Item/Description and Specification left, Brand and Qty centered, Amount right; headers stay centered.
+- PDF wrapping now breaks very long tokens so Item/Description and Specification stay inside their columns.
+- PDF table widths rebalance Lead Time/Unit Price narrower and Brand/Qty/Remarks wider.
+- Signature date now follows the quotation Date field exactly.
+
+No new SQL is required for V42. V41 revision SQL is still required if it has not already been applied.

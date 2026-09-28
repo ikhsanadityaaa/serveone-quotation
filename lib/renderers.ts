@@ -11,7 +11,7 @@ const TEXT='FF202A36';
 const MUTED='FF5F6875';
 
 function money(n:number){return new Intl.NumberFormat('id-ID').format(Number(n||0))}
-function indonesiaDate(iso:string){const d=new Date(`${iso}T00:00:00+07:00`);const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`}
+function indonesiaDate(iso:string){const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];const match=String(iso||'').slice(0,10).match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!match)return String(iso||'');const month=months[Math.max(0,Math.min(11,Number(match[2])-1))];return `${match[3]} ${month} ${match[1]}`}
 function indonesiaToday(){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const m=Object.fromEntries(parts.map(x=>[x.type,x.value]));return indonesiaDate(`${m.year}-${m.month}-${m.day}`)}
 
 export async function quotationXlsx(q:StoredQuotation){
@@ -46,7 +46,7 @@ export async function quotationXlsx(q:StoredQuotation){
  const totals=[['Total Amount',subtotal],['Total VAT '+c.vatRate+'%',vat],['Total Amount Including VAT',grand]] as const;
  totals.forEach(([label,value],i)=>{const rr=r+i;ws.mergeCells(rr,8,rr,9);ws.getCell(rr,8).value=label;ws.getCell(rr,8).font={bold:true,color:{argb:TEXT}};ws.getCell(rr,8).alignment={horizontal:'left',vertical:'middle'};ws.getCell(rr,10).value='IDR';ws.getCell(rr,10).font={bold:true,color:{argb:TEXT}};ws.getCell(rr,10).alignment={horizontal:'center'};ws.mergeCells(rr,11,rr,12);ws.getCell(rr,11).value=value;ws.getCell(rr,11).numFmt='#,##0';ws.getCell(rr,11).font={bold:true,color:{argb:TEXT}};ws.getCell(rr,11).alignment={horizontal:'right'};for(let cc=8;cc<=12;cc++)ws.getCell(rr,cc).border={top:{style:'thin',color:{argb:GRID}},bottom:{style:'thin',color:{argb:GRID}},left:{style:'thin',color:{argb:GRID}},right:{style:'thin',color:{argb:GRID}}}});
  r+=5;ws.mergeCells(r,1,r,8);ws.getCell(r,1).value='Notes';ws.getCell(r,1).font={bold:true,color:{argb:TEXT}};c.notes.forEach((n,i)=>{r++;ws.mergeCells(r,1,r,8);ws.getCell(r,1).value=`${i+1}. ${n}`;ws.getCell(r,1).alignment={wrapText:true,vertical:'top'}});
- const signRow=Math.max(r+2,headRow+c.items.length+8);ws.mergeCells(signRow,9,signRow,12);ws.getCell(signRow,9).value=`Jakarta, ${indonesiaToday()}`;ws.getCell(signRow,9).alignment={horizontal:'center'};ws.mergeCells(signRow+1,9,signRow+1,12);ws.getCell(signRow+1,9).value='President Director,';ws.getCell(signRow+1,9).alignment={horizontal:'center'};
+ const signRow=Math.max(r+2,headRow+c.items.length+8);ws.mergeCells(signRow,9,signRow,12);ws.getCell(signRow,9).value=`Jakarta, ${indonesiaDate(c.quotationDate||q.quotation_date)}`;ws.getCell(signRow,9).alignment={horizontal:'center'};ws.mergeCells(signRow+1,9,signRow+1,12);ws.getCell(signRow+1,9).value='President Director,';ws.getCell(signRow+1,9).alignment={horizontal:'center'};
  const stamp=await signatureData('/serveone-stamp.png');
  if(stamp){const id=wb.addImage({buffer:stamp.buffer as any,extension:stamp.kind==='png'?'png':'jpeg'});ws.addImage(id,{tl:{col:6.75,row:signRow+2.05},ext:{width:155,height:52}})}
  const sig=await signatureData(c.directorSignaturePath||'/signature-mr-herry.png');if(sig){const id=wb.addImage({buffer:sig.buffer as any,extension:sig.kind==='png'?'png':'jpeg'});ws.addImage(id,{tl:{col:9.0,row:signRow+1.5},ext:{width:150,height:68}})}
@@ -55,7 +55,19 @@ export async function quotationXlsx(q:StoredQuotation){
 }
 
 type PdfCtx={page:PDFPage;regular:PDFFont;bold:PDFFont};
-function pdfWrap(font:PDFFont,text:string,size:number,maxWidth:number){const words=String(text||'').split(/\s+/).filter(Boolean);const lines:string[]=[];let line='';for(const word of words){const next=(line+' '+word).trim();if(line&&font.widthOfTextAtSize(next,size)>maxWidth){lines.push(line);line=word}else line=next}if(line)lines.push(line);return lines.length?lines:['']}
+function pdfWrap(font:PDFFont,text:string,size:number,maxWidth:number){
+ const width=(v:string)=>font.widthOfTextAtSize(v,size);
+ const breakToken=(token:string)=>{const parts:string[]=[];let chunk='';for(const ch of token){const next=chunk+ch;if(chunk&&width(next)>maxWidth){parts.push(chunk);chunk=ch}else chunk=next}if(chunk)parts.push(chunk);return parts.length?parts:['']};
+ const lines:string[]=[];
+ const paragraphs=String(text||'').replace(/\r/g,'').split('\n');
+ for(let pi=0;pi<paragraphs.length;pi++){
+  const words=paragraphs[pi].split(/\s+/).filter(Boolean);let line='';
+  for(const word of words){const pieces=width(word)>maxWidth?breakToken(word):[word];for(const piece of pieces){const next=(line+' '+piece).trim();if(line&&width(next)>maxWidth){lines.push(line);line=piece}else line=next;if(width(line)>maxWidth){const split=breakToken(line);lines.push(...split.slice(0,-1));line=split.at(-1)||''}}}
+  if(line){lines.push(line);line=''}
+  if(pi<paragraphs.length-1&&paragraphs[pi]==='')lines.push('');
+ }
+ return lines.length?lines:[''];
+}
 function drawLines(ctx:PdfCtx,lines:string[],x:number,y:number,size:number,maxWidth:number,bold=false,align:'left'|'center'|'right'='left',color=rgb(.12,.14,.17)){const font=bold?ctx.bold:ctx.regular;lines.forEach((line,i)=>{const w=font.widthOfTextAtSize(line,size);let xx=x;if(align==='center')xx=x+(maxWidth-w)/2;if(align==='right')xx=x+maxWidth-w;ctx.page.drawText(line,{x:xx,y:y-i*(size+2),size,font,color})})}
 
 export async function quotationPdf(q:StoredQuotation){
@@ -104,14 +116,14 @@ export async function quotationPdf(q:StoredQuotation){
   {k:'code',h:'Code',w:32,a:'left'},
   {k:'item',h:'Item / Description',w:70,a:'left'},
   {k:'spec',h:'Specification',w:108,a:'left'},
-  {k:'brand',h:'Brand',w:28,a:'left'},
-  {k:'user',h:'User',w:32,a:'left'},
-  {k:'lead',h:'Lead Time',w:48,a:'center'},
-  {k:'qty',h:'Qty',w:18,a:'right'},
+  {k:'brand',h:'Brand',w:36,a:'center'},
+  {k:'user',h:'User',w:27,a:'left'},
+  {k:'lead',h:'Lead Time',w:38,a:'center'},
+  {k:'qty',h:'Qty',w:25,a:'right'},
   {k:'uom',h:'UOM',w:23,a:'center'},
-  {k:'price',h:'Unit Price\n(IDR)',w:62,a:'right'},
+  {k:'price',h:'Unit Price\n(IDR)',w:50,a:'right'},
   {k:'amount',h:'Amount\n(IDR)',w:50,a:'right'},
-  {k:'remarks',h:'Remarks',w:43,a:'left'}
+  {k:'remarks',h:'Remarks',w:55,a:'left'}
  ] as const;
  const tableW=cols.reduce((sum,col)=>sum+col.w,0);
  const drawTableHeader=()=>{
@@ -179,7 +191,7 @@ export async function quotationPdf(q:StoredQuotation){
    y-=Math.max(12,lines.length*9.2);
  }
  const signatureTop=Math.max(95,y-4);
- drawLines(ctx,[`Jakarta, ${indonesiaToday()}`],365,signatureTop,7.6,180,false,'center',text);
+ drawLines(ctx,[`Jakarta, ${indonesiaDate(c.quotationDate||q.quotation_date)}`],365,signatureTop,7.6,180,false,'center',text);
  drawLines(ctx,['President Director,'],365,signatureTop-15,7.6,180,false,'center',text);
  if(stampImage)page.drawImage(stampImage,{x:274,y:signatureTop-79,width:150,height:50});
  const sig=await signatureData(c.directorSignaturePath||'/signature-mr-herry.png');

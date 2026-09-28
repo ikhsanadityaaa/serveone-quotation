@@ -52,3 +52,5 @@ For an existing Supabase project, run `supabase/v24-upgrade.sql` once before usi
 ## V41 database upgrade
 For an existing Supabase project, run `supabase/v41-upgrade.sql` **once before deploying V41**.
 This adds revision metadata and the atomic revision-number function used by `/REV-N`. Fresh installations can use the updated `supabase/full-setup.sql`.
+
+V42 does not add a new database migration. If V41 revision support is already installed, deploy the code only. If it is not installed yet, run `supabase/v41-upgrade.sql` before deploying.
