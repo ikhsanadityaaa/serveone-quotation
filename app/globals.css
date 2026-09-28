@@ -520,3 +520,38 @@ input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!impor
 }
 .uom-picker-arrow span{display:none!important}
 .uom-picker-arrow:hover,.uom-picker-arrow:focus{background-color:#fff!important;outline:none!important;box-shadow:none!important}
+
+
+/* V40: integrated UOM selector, content-width popup, and no fill handle on dropdown cells. */
+.uom-picker{
+  display:block!important;
+  position:relative!important;
+  min-height:35px;
+  width:100%;
+  background:#fff;
+}
+.uom-picker .uom-search-input.uom-select-trigger{
+  width:100%!important;
+  min-width:0!important;
+  height:35px!important;
+  padding:7px 22px 7px 6px!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  outline:none!important;
+  background-color:#fff!important;
+  background-image:linear-gradient(45deg,transparent 50%,#6d7d92 50%),linear-gradient(135deg,#6d7d92 50%,transparent 50%)!important;
+  background-position:calc(100% - 11px) 15px,calc(100% - 7px) 15px!important;
+  background-size:4px 4px,4px 4px!important;
+  background-repeat:no-repeat!important;
+  text-align:center!important;
+  font-weight:600;
+  cursor:pointer!important;
+}
+.uom-picker .uom-search-input.uom-select-trigger:focus{
+  border:0!important;
+  outline:none!important;
+  box-shadow:none!important;
+}
+.uom-dropdown-popover{min-width:210px!important;max-width:min(360px,calc(100vw - 16px))!important}
+.uom-dropdown-list .uom-name{overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important}

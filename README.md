@@ -19,7 +19,7 @@ Internal quotation generator for PT Serveone MRO Indonesia.
 - pdf-lib for PDF export
 
 ## Main features
-- Create quotation and export Excel/PDF separately.
+- Create quotation and export PDF from the Create Quotation page. Quotation List still supports filtered Excel export.
 - Client / Attention / Sales PIC master data stored in Supabase.
 - Spreadsheet-style item grid with Excel paste and searchable UOM.
 - Batch Client Data and Batch Sales PIC input up to 5,000 rows.
@@ -100,7 +100,7 @@ The Rows-per-page selector is positioned immediately to the left of the Previous
 - Lead Time now has a Days/Week selector, default Days.
 - Item/Description, Specification, and Remarks auto-wrap and grow row height.
 - Rebalanced Qty, UOM, Unit Price, Specification, and Brand widths.
-- PDF, Excel, history, and reload preserve Code and Lead Time unit.
+- PDF, history, reload, and Quotation List Excel export preserve Code and Lead Time unit.
 
 ## V37 updates
 - UOM in Create Quotation is now a true searchable dropdown with a compact arrow control; cells still display only the selected UOM code while the dropdown shows code + description.
