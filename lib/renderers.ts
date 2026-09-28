@@ -33,9 +33,9 @@ export async function quotationXlsx(q:StoredQuotation){
  right.forEach(([k,v],i)=>{const r=start+i;ws.getCell(r,8).value=k;ws.getCell(r,9).value=':';ws.mergeCells(r,10,r,12);ws.getCell(r,10).value=v;ws.getCell(r,8).font={bold:true,color:{argb:MUTED}};ws.getCell(r,8).alignment={horizontal:'left',vertical:'top'};ws.getCell(r,9).alignment={horizontal:'center',vertical:'top'};ws.getCell(r,10).alignment={horizontal:'left',vertical:'top',wrapText:true};if(k==='Address')ws.getRow(r).height=25});
 
  const headRow=14;const heads=['No','Code','Item / Description','Specification','Brand','User','Lead Time','Qty','UOM','Unit Price (IDR)','Amount (IDR)','Remarks'];
- heads.forEach((h,i)=>{const cell=ws.getCell(headRow,i+1);cell.value=h;cell.font={bold:true,color:{argb:TEXT},size:10};cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:LIGHT}};cell.alignment={horizontal:'center',vertical:'middle',wrapText:true};cell.border={top:{style:'medium',color:{argb:SERVEONE_RED}},bottom:{style:'thin',color:{argb:GRID}}}});ws.getRow(headRow).height=27;
+ heads.forEach((h,i)=>{const cell=ws.getCell(headRow,i+1);cell.value=h;cell.font={bold:true,color:{argb:TEXT},size:10};cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:LIGHT}};cell.alignment={horizontal:'center',vertical:'middle',wrapText:true};cell.border={top:{style:'medium',color:{argb:SERVEONE_RED}},bottom:{style:'thin',color:{argb:GRID}},left:{style:'thin',color:{argb:GRID}},right:{style:'thin',color:{argb:GRID}}}});ws.getRow(headRow).height=27;
  c.items.forEach((it,idx)=>{const r=headRow+1+idx;const vals=[idx+1,it.code,it.productName,it.spec,it.brand,it.user,it.leadTime?`${it.leadTime} ${it.leadTimeUnit||'Days'}`:'',it.qty,it.uom,it.unitPrice,it.qty*it.unitPrice,it.remarks];
-  vals.forEach((v,i)=>{const cell=ws.getCell(r,i+1);cell.value=v as any;cell.border={bottom:{style:'thin',color:{argb:GRID}}};cell.alignment={vertical:'top',wrapText:true};if(idx%2)cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:ZEBRA}};
+  vals.forEach((v,i)=>{const cell=ws.getCell(r,i+1);cell.value=v as any;cell.border={bottom:{style:'thin',color:{argb:GRID}},left:{style:'thin',color:{argb:GRID}},right:{style:'thin',color:{argb:GRID}}};cell.alignment={vertical:'top',wrapText:true};if(idx%2)cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:ZEBRA}};
    if([0,1,2,3,4,5,11].includes(i))cell.alignment={vertical:'top',horizontal:i===0?'center':'left',wrapText:true};
    if(i===6||i===8)cell.alignment={vertical:'top',horizontal:'center',wrapText:true};
    if(i===7)cell.alignment={vertical:'top',horizontal:'right'};
@@ -48,7 +48,7 @@ export async function quotationXlsx(q:StoredQuotation){
  r+=5;ws.mergeCells(r,1,r,8);ws.getCell(r,1).value='Notes';ws.getCell(r,1).font={bold:true,color:{argb:TEXT}};c.notes.forEach((n,i)=>{r++;ws.mergeCells(r,1,r,8);ws.getCell(r,1).value=`${i+1}. ${n}`;ws.getCell(r,1).alignment={wrapText:true,vertical:'top'}});
  const signRow=Math.max(r+2,headRow+c.items.length+8);ws.mergeCells(signRow,9,signRow,12);ws.getCell(signRow,9).value=`Jakarta, ${indonesiaToday()}`;ws.getCell(signRow,9).alignment={horizontal:'center'};ws.mergeCells(signRow+1,9,signRow+1,12);ws.getCell(signRow+1,9).value='President Director,';ws.getCell(signRow+1,9).alignment={horizontal:'center'};
  const stamp=await signatureData('/serveone-stamp.png');
- if(stamp){const id=wb.addImage({buffer:stamp.buffer as any,extension:stamp.kind==='png'?'png':'jpeg'});ws.addImage(id,{tl:{col:7.2,row:signRow+2.35},ext:{width:118,height:39}})}
+ if(stamp){const id=wb.addImage({buffer:stamp.buffer as any,extension:stamp.kind==='png'?'png':'jpeg'});ws.addImage(id,{tl:{col:6.75,row:signRow+2.05},ext:{width:155,height:52}})}
  const sig=await signatureData(c.directorSignaturePath||'/signature-mr-herry.png');if(sig){const id=wb.addImage({buffer:sig.buffer as any,extension:sig.kind==='png'?'png':'jpeg'});ws.addImage(id,{tl:{col:9.0,row:signRow+1.5},ext:{width:150,height:68}})}
  ws.mergeCells(signRow+6,9,signRow+6,12);ws.getCell(signRow+6,9).value=c.directorName;ws.getCell(signRow+6,9).font={bold:true};ws.getCell(signRow+6,9).alignment={horizontal:'center'};
  ws.eachRow(row=>row.eachCell(cell=>{cell.font={name:'Arial',size:9.5,color:{argb:TEXT},...cell.font}}));const b=await wb.xlsx.writeBuffer();return Buffer.from(b)
@@ -120,7 +120,12 @@ export async function quotationPdf(q:StoredQuotation){
    page.drawLine({start:{x:margin,y},end:{x:margin+tableW,y},thickness:1.05,color:red});
    page.drawLine({start:{x:margin,y:y-26},end:{x:margin+tableW,y:y-26},thickness:.6,color:line});
    let x=margin;
-   for(const col of cols){drawLines(ctx,col.h.split('\n'),x,y-9.5,6.8,col.w,true,'center',text);x+=col.w}
+   page.drawLine({start:{x:margin,y},end:{x:margin,y:y-26},thickness:.45,color:line});
+   for(const col of cols){
+     drawLines(ctx,col.h.split('\n'),x,y-9.5,6.8,col.w,true,'center',text);
+     x+=col.w;
+     page.drawLine({start:{x,y},end:{x,y:y-26},thickness:.45,color:line});
+   }
    y-=26;
  };
  const beginContinuationPage=()=>{
@@ -141,11 +146,13 @@ export async function quotationPdf(q:StoredQuotation){
    if(i%2)page.drawRectangle({x:margin,y:y-rowH,width:tableW,height:rowH,color:zebra});
    page.drawLine({start:{x:margin,y:y-rowH},end:{x:margin+tableW,y:y-rowH},thickness:.45,color:line});
    let x=margin;
+   page.drawLine({start:{x:margin,y},end:{x:margin,y:y-rowH},thickness:.35,color:line});
    for(let ci=0;ci<cols.length;ci++){
      const col=cols[ci];
      if(col.k==='price'||col.k==='amount') drawLines(ctx,[money(values[col.k])],x+2,y-11,6.9,col.w-4,false,'right',text);
      else drawLines(ctx,textCols[ci],x+2,y-10.5,7.0,col.w-4,false,col.a as 'left'|'center'|'right',text);
      x+=col.w;
+     page.drawLine({start:{x,y},end:{x,y:y-rowH},thickness:.35,color:line});
    }
    y-=rowH;
  }
@@ -174,7 +181,7 @@ export async function quotationPdf(q:StoredQuotation){
  const signatureTop=Math.max(95,y-4);
  drawLines(ctx,[`Jakarta, ${indonesiaToday()}`],365,signatureTop,7.6,180,false,'center',text);
  drawLines(ctx,['President Director,'],365,signatureTop-15,7.6,180,false,'center',text);
- if(stampImage)page.drawImage(stampImage,{x:308,y:signatureTop-72,width:112,height:37});
+ if(stampImage)page.drawImage(stampImage,{x:274,y:signatureTop-79,width:150,height:50});
  const sig=await signatureData(c.directorSignaturePath||'/signature-mr-herry.png');
  if(sig){try{const img=sig.kind==='png'?await pdf.embedPng(sig.buffer):await pdf.embedJpg(sig.buffer);page.drawImage(img,{x:390,y:signatureTop-84,width:130,height:66})}catch{}}
  drawLines(ctx,[c.directorName],365,signatureTop-96,8.2,180,true,'center',text);

@@ -425,3 +425,30 @@ input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!impor
 .sheet td:nth-child(2),.sheet td:nth-child(3),.sheet td:nth-child(4),.sheet td:nth-child(5),.sheet td:nth-child(6),.sheet td:nth-child(12){text-align:left!important}
 .sheet td:nth-child(7){text-align:center!important}.sheet td:nth-child(8){text-align:right!important}.sheet td:nth-child(9){text-align:center!important}.sheet td:nth-child(10),.sheet td:nth-child(11){text-align:right!important}.sheet td:nth-child(9) .uom-search-input{text-align:center!important}.lead-time-input input{text-align:right!important}
 .quotation-sheet td:nth-child(1),.quotation-sheet th:nth-child(1){min-width:48px;width:48px;text-align:center}.quotation-sheet td:nth-child(2),.quotation-sheet th:nth-child(2){min-width:58px;width:58px;text-align:center}.quotation-sheet td:nth-child(3),.quotation-sheet th:nth-child(3){min-width:55px;width:55px;text-align:center}.quotation-sheet td:nth-child(4),.quotation-sheet th:nth-child(4){min-width:180px}.quotation-sheet td:nth-child(5),.quotation-sheet th:nth-child(5){min-width:100px}.quotation-sheet td:nth-child(6),.quotation-sheet th:nth-child(6){min-width:200px}.quotation-sheet td:nth-child(7),.quotation-sheet th:nth-child(7){min-width:140px}.quotation-sheet td:nth-child(8),.quotation-sheet th:nth-child(8){min-width:62px;text-align:center}.quotation-sheet td:nth-child(9),.quotation-sheet th:nth-child(9){min-width:90px}.quotation-sheet td:nth-child(10),.quotation-sheet th:nth-child(10){min-width:190px}.quotation-sheet td:nth-child(11),.quotation-sheet th:nth-child(11){min-width:240px;text-align:left}.quotation-sheet td:nth-child(12),.quotation-sheet th:nth-child(12){min-width:90px}.quotation-sheet td:nth-child(13),.quotation-sheet th:nth-child(13){min-width:110px}.quotation-sheet td:nth-child(14),.quotation-sheet th:nth-child(14){min-width:120px;text-align:center}.quotation-sheet td:nth-child(15),.quotation-sheet th:nth-child(15){min-width:70px}.quotation-sheet td:nth-child(16),.quotation-sheet th:nth-child(16){min-width:80px;text-align:center}.quotation-sheet td:nth-child(17),.quotation-sheet th:nth-child(17),.quotation-sheet td:nth-child(18),.quotation-sheet th:nth-child(18){min-width:130px}.quotation-sheet td:nth-child(19),.quotation-sheet th:nth-child(19){min-width:190px}
+/* V35 item-grid sizing/focus refinements */
+.sheet col.col-brand,.sheet col.col-user{width:112px!important}
+.sheet col.col-lead{width:126px!important}
+.sheet col.col-qty{width:50px!important}
+.sheet col.col-uom{width:54px!important}
+.sheet col.col-price{width:150px!important}
+.sheet col.col-spec{width:285px!important}
+.lead-time-input{grid-template-columns:minmax(40px,1fr) 62px!important}
+.lead-time-input input.lead-time-value:focus{box-shadow:inset 0 0 0 2px var(--blue)!important;outline:none!important}
+.lead-time-input select.lead-time-unit{appearance:none!important;-webkit-appearance:none!important;background-color:#fff!important;background-image:linear-gradient(45deg,transparent 50%,#6d7d92 50%),linear-gradient(135deg,#6d7d92 50%,transparent 50%)!important;background-position:calc(100% - 11px) 15px,calc(100% - 7px) 15px!important;background-size:4px 4px,4px 4px!important;background-repeat:no-repeat!important;padding-left:6px!important;padding-right:20px!important;text-align:left!important}
+.lead-time-input select.lead-time-unit:focus{box-shadow:inset 0 0 0 1px #cfd8e3!important;outline:none!important}
+.sheet td .uom-search-input{padding-left:5px!important;padding-right:5px!important}
+
+/* V36: stabilize Items action column across Windows/macOS and keep it clearly separate. */
+.sheet-wrap{overflow:auto hidden}
+.sheet-canvas{display:block!important;width:max-content!important;min-width:100%!important}
+.sheet-canvas .sheet{width:max-content!important;min-width:100%!important}
+.sheet th.sheet-actions-head,.sheet td.sheet-actions-cell{position:sticky;right:0;z-index:4;width:78px!important;min-width:78px!important;max-width:78px!important;text-align:center!important;vertical-align:middle!important;border-left:1px solid #dfe5eb;background:#f7f9fc!important}
+.sheet th.sheet-actions-head{z-index:6;background:#e9eff7!important}
+.sheet td.sheet-actions-cell{padding:0!important}
+.sheet-actions-buttons{display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;width:100%;min-height:35px;height:100%}
+.sheet-actions-buttons button{width:28px!important;height:28px!important;display:grid!important;place-items:center!important;flex:0 0 auto}
+.sheet .amount-cell{padding-right:10px!important}
+
+/* V36: quotation table headers/body get matching vertical dividers in the same theme. */
+.quotation-sheet th,.quotation-sheet td{border-right:1px solid #d8e0e8}
+.quotation-sheet th:last-child,.quotation-sheet td:last-child{border-right:0}
