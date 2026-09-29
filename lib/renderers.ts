@@ -66,8 +66,7 @@ const PDF_CHAR_FALLBACKS:Record<string,string>={
  '\u2013':'-', '\u2014':'-', '\u2212':'-', '\u2026':'...', '\u200b':'',
  '\ufeff':''
 };
-const pdfCharSupportCache=new WeakMap<PDFFont,Map<string,boolean>>();
-function fontSupportCache(font:PDFFont){let cache=pdfCharSupportCache.get(font);if(!cache){cache=new Map<string,boolean>();pdfCharSupportCache.set(font,cache)}return cache}
+const pdfCharSupportCache=new Map<string,boolean>();
 function pdfSafeText(font:PDFFont,value:unknown){
  const source=String(value??'');
  let out='';
@@ -75,11 +74,10 @@ function pdfSafeText(font:PDFFont,value:unknown){
   if(raw==='\n'||raw==='\r'||raw==='\t'){out+=raw==='\t'?' ':raw;continue}
   const mapped=Object.prototype.hasOwnProperty.call(PDF_CHAR_FALLBACKS,raw)?PDF_CHAR_FALLBACKS[raw]:raw;
   if(mapped!==raw){out+=mapped;continue}
-  const cache=fontSupportCache(font);
-  let supported=cache.get(raw);
+  let supported=pdfCharSupportCache.get(raw);
   if(supported===undefined){
    try{font.widthOfTextAtSize(raw,1);supported=true}catch{supported=false}
-   cache.set(raw,supported);
+   pdfCharSupportCache.set(raw,supported);
   }
   out+=supported?raw:'?';
  }
@@ -101,77 +99,10 @@ function pdfWrap(font:PDFFont,text:string,size:number,maxWidth:number){
 }
 function drawLines(ctx:PdfCtx,lines:string[],x:number,y:number,size:number,maxWidth:number,bold=false,align:'left'|'center'|'right'='left',color=rgb(.12,.14,.17)){const font=bold?ctx.bold:ctx.regular;lines.forEach((line,i)=>{const safeLine=pdfSafeText(font,line);const w=font.widthOfTextAtSize(safeLine,size);let xx=x;if(align==='center')xx=x+(maxWidth-w)/2;if(align==='right')xx=x+maxWidth-w;ctx.page.drawText(safeLine,{x:xx,y:y-i*(size+2),size,font,color})})}
 
-// Use the lightweight built-in Helvetica path for normal quotations. Only load
-// and embed a Korean Unicode font when Hangul is actually present in the data.
-const HANGUL_RE=/[\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF]/u;
-// Korean fonts are loaded only when Hangul is present. Use version-pinned
-// sources with fallbacks instead of the retired fonts.gstatic.com/ea URLs.
-// WOFF is preferred here because it is broadly handled by fontkit and PDF
-// viewers; a TTF fallback is kept as a last resort.
-const KOREAN_FONT_SOURCES={
- regular:[
-  'https://cdn.jsdelivr.net/npm/@openfonts/noto-sans-kr_korean@1.44.1/files/noto-sans-kr-korean-400.woff',
-  'https://unpkg.com/@openfonts/noto-sans-kr_korean@1.44.1/files/noto-sans-kr-korean-400.woff',
-  'https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-kr@5.3.0/files/noto-sans-kr-korean-400-normal.woff',
-  'https://unpkg.com/@fontsource/noto-sans-kr@5.3.0/files/noto-sans-kr-korean-400-normal.woff',
-  'https://raw.githubusercontent.com/google/fonts/main/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf'
- ],
- bold:[
-  'https://cdn.jsdelivr.net/npm/@openfonts/noto-sans-kr_korean@1.44.1/files/noto-sans-kr-korean-700.woff',
-  'https://unpkg.com/@openfonts/noto-sans-kr_korean@1.44.1/files/noto-sans-kr-korean-700.woff',
-  'https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-kr@5.3.0/files/noto-sans-kr-korean-700-normal.woff',
-  'https://unpkg.com/@fontsource/noto-sans-kr@5.3.0/files/noto-sans-kr-korean-700-normal.woff',
-  'https://raw.githubusercontent.com/google/fonts/main/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf'
- ]
-} as const;
-type KoreanFontBytes={regular:Uint8Array;bold:Uint8Array};
-let koreanFontBytesPromise:Promise<KoreanFontBytes>|null=null;
-function quotationHasHangul(q:StoredQuotation){try{return HANGUL_RE.test(JSON.stringify(q))}catch{return false}}
-async function fetchFirstFontBytes(urls:readonly string[]){
- const failures:string[]=[];
- for(const url of urls){
-  try{
-   const response=await fetch(url,{cache:'force-cache',redirect:'follow',signal:AbortSignal.timeout(15000)});
-   if(!response.ok){failures.push(`${response.status} ${new URL(url).host}`);continue}
-   const bytes=new Uint8Array(await response.arrayBuffer());
-   // Guard against CDN HTML/error bodies returned with a 200 status.
-   if(bytes.byteLength<10000){failures.push(`invalid font response ${new URL(url).host}`);continue}
-   return bytes;
-  }catch(error){
-   failures.push(`${new URL(url).host}: ${error instanceof Error?error.message:'request failed'}`);
-  }
- }
- throw new Error(`Failed to load Korean PDF font from all sources (${failures.join('; ')})`);
-}
-async function koreanFontBytes(){
- if(!koreanFontBytesPromise){
-  koreanFontBytesPromise=(async()=>{
-   const regular=await fetchFirstFontBytes(KOREAN_FONT_SOURCES.regular);
-   // If every bold source fails, reuse the Unicode regular font rather than
-   // failing the entire quotation download. Hangul remains intact.
-   let bold=regular;
-   try{bold=await fetchFirstFontBytes(KOREAN_FONT_SOURCES.bold)}catch{}
-   return {regular,bold};
-  })().catch(error=>{koreanFontBytesPromise=null;throw error});
- }
- return koreanFontBytesPromise;
-}
-async function quotationPdfFonts(pdf:PDFDocument,q:StoredQuotation){
- if(!quotationHasHangul(q)){
-  return {regular:await pdf.embedFont(StandardFonts.Helvetica),bold:await pdf.embedFont(StandardFonts.HelveticaBold),usesKoreanFont:false};
- }
- const fontkitModule=await import('@pdf-lib/fontkit');
- pdf.registerFontkit(fontkitModule.default);
- const bytes=await koreanFontBytes();
- const regular=await pdf.embedFont(bytes.regular,{subset:true});
- const bold=await pdf.embedFont(bytes.bold,{subset:true});
- return {regular,bold,usesKoreanFont:true};
-}
-
 export async function quotationPdf(q:StoredQuotation){
  const c=q.content;
  const pdf=await PDFDocument.create();
- const {regular,bold}=await quotationPdfFonts(pdf,q);
+ const regular=await pdf.embedFont(StandardFonts.Helvetica),bold=await pdf.embedFont(StandardFonts.HelveticaBold);
  const A4:[number,number]=[595.28,841.89],margin=32;
  const red=rgb(.78,0,.24),text=rgb(.12,.14,.17),muted=rgb(.35,.39,.45),line=rgb(.84,.86,.89),headerFill=rgb(.955,.96,.968),zebra=rgb(.982,.985,.99);
  const logo=await signatureData('/serveone-logo.png');
