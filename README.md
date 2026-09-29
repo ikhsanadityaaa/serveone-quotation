@@ -3,8 +3,8 @@
 ## V41 changes
 - Revisions now stay under one base quotation number: `SMI/YYYY-MM/0001`, then `/REV-1`, `/REV-2`, and so on.
 - KPI Clients / Quotes / Amount use only the newest revision of each logical quotation, so older negotiated prices are not double-counted.
-- Quotation List adds **Latest Quo**. Only the newest record of a revised quotation shows a blue **Latest** badge; quotations that were never revised stay unlabeled.
-- Quotation List > Download Excel now offers **All Quotation** or **Latest Quotation Only**.
+- Quotation History adds **Latest Quo**. Only the newest record of a revised quotation shows a blue **Latest** badge; quotations that were never revised stay unlabeled.
+- Quotation History > Download Excel now offers **All Quotation** or **Latest Quotation Only**.
 - Qty is wider and displays Indonesian thousands separators (for example `10.000`).
 - Lead Time accepts digits only.
 - Lead Time and UOM can be filled down with the blue drag handle.
@@ -32,11 +32,11 @@ Internal quotation generator for PT Serveone MRO Indonesia.
 - pdf-lib for PDF export
 
 ## Main features
-- Create quotation and export PDF from the Create Quotation page. Quotation List still supports filtered Excel export.
+- Create quotation and export PDF from the Create Quotation page. Quotation History still supports filtered Excel export.
 - Client / Attention / Sales PIC master data stored in Supabase.
 - Spreadsheet-style item grid with Excel paste and searchable UOM.
 - Batch Client Data and Batch Sales PIC input up to 5,000 rows.
-- Quotation List with search, filters, pagination, reload and delete.
+- Quotation History with search, filters, pagination, reload and delete.
 - Atomic monthly quotation numbering: `SMI/YYYY-MM/0001`.
 - Static Serveone logo and President Director signature from `/public`.
 
@@ -44,19 +44,19 @@ See `BUILD_INSTRUCTIONS.md` for local setup and deployment.
 
 ## V16 interaction updates
 - Filled Create Quotation fields are highlighted in soft yellow.
-- Quotation List supports multi-select checkboxes, per-quotation Reload, batch Delete with confirmation, and batch Print to a combined PDF.
+- Quotation History supports multi-select checkboxes, per-quotation Reload, batch Delete with confirmation, and batch Print to a combined PDF.
 - Sales PIC and Client filters use staged selections: changes only apply after **Apply**; **Clear All** only changes the draft until Apply is pressed.
 - Excel signature placement is slightly realigned for the President Director block.
 
 
 ## V17 UI refinements
-- Larger blue Print/Delete toolbar buttons on Quotation List.
+- Larger blue Print/Delete toolbar buttons on Quotation History.
 - Filter popovers open to the right so they do not overlap the sidebar.
 - Specification cells are explicitly left-aligned.
 
 
 ## V18 master-data UI
-- Client Data and Quotation List default pagination: 15 rows.
+- Client Data and Quotation History default pagination: 15 rows.
 - Active columns are hidden from all Master Data tables.
 - Action X buttons are centered and turn red on hover.
 - Edit Client supports up to 1,000 Attention rows, so existing clients with hundreds of Attention entries load completely.
@@ -67,11 +67,11 @@ See `BUILD_INSTRUCTIONS.md` for local setup and deployment.
 - Attention count in Client Data is centered.
 
 ### V22 pagination layout
-The Rows-per-page selector is positioned immediately to the left of the Previous/Next page controls across Client Data and Quotation List.
+The Rows-per-page selector is positioned immediately to the left of the Previous/Next page controls across Client Data and Quotation History.
 
 ## V23 UI update
 - All destructive X actions use the same custom confirmation dialog: “Are You sure want to delete this data?” with Yes / Cancel.
-- Quotation List bulk Delete uses the same confirmation dialog.
+- Quotation History bulk Delete uses the same confirmation dialog.
 - Edit Client > Attention has row checkboxes, select-all, and bulk Delete above the table.
 
 
@@ -113,7 +113,7 @@ The Rows-per-page selector is positioned immediately to the left of the Previous
 - Lead Time now has a Days/Week selector, default Days.
 - Item/Description, Specification, and Remarks auto-wrap and grow row height.
 - Rebalanced Qty, UOM, Unit Price, Specification, and Brand widths.
-- PDF, history, reload, and Quotation List Excel export preserve Code and Lead Time unit.
+- PDF, history, reload, and Quotation History Excel export preserve Code and Lead Time unit.
 
 ## V37 updates
 - UOM in Create Quotation is now a true searchable dropdown with a compact arrow control; cells still display only the selected UOM code while the dropdown shows code + description.
@@ -130,8 +130,8 @@ The Rows-per-page selector is positioned immediately to the left of the Previous
 - Mouse drag can select a rectangular range of editable item cells; Delete/Backspace clears the selected range.
 - Wrapped item rows synchronize the full row height across all columns.
 - Item Remarks is horizontally centered.
-- Quotation List uses a frozen header inside its own scroll viewport and a synchronized horizontal scrollbar that appears above the table on hover.
-- Quotation List alignment: Item/Description and Specification left, Brand and Qty centered, Amount right; headers stay centered.
+- Quotation History uses a frozen header inside its own scroll viewport and a synchronized horizontal scrollbar that appears above the table on hover.
+- Quotation History alignment: Item/Description and Specification left, Brand and Qty centered, Amount right; headers stay centered.
 - PDF wrapping now breaks very long tokens so Item/Description and Specification stay inside their columns.
 - PDF table widths rebalance Lead Time/Unit Price narrower and Brand/Qty/Remarks wider.
 - Signature date now follows the quotation Date field exactly.
@@ -144,6 +144,6 @@ No new SQL is required for V42. V41 revision SQL is still required if it has not
 - Dragging from an editable cell into another cell still switches to rectangular spreadsheet range selection.
 
 ### V46
-- Quotation List Qty header is centered.
+- Quotation History Qty header is centered.
 - Data-column headers can be pinned one at a time. The pinned column alone stays at the far left while horizontal scrolling; earlier columns continue scrolling away.
 - Pinned body cells keep the quotation-group zebra background so overlapping content remains opaque and readable.

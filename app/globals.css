@@ -677,3 +677,8 @@ input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!impor
 
 /* The fixed-on-window header mirrors horizontal scrolling and the selected pinned column. */
 .quotation-floating-header .quotation-sheet thead th.history-pinned-cell{position:relative!important;left:auto!important;z-index:14!important;background:#e9eff7!important;will-change:transform}
+
+/* V53: immediate PDF-character validation in the item grid. */
+.item-char-warning{position:sticky;left:0;top:0;z-index:8;padding:9px 12px;background:#fff0f1;border-bottom:1px solid #e8a6ad;color:#9f1f2e;font-size:11px;font-weight:700}
+.sheet td.pdf-char-invalid{background:#fff0f1!important;box-shadow:inset 0 0 0 2px #d64252!important;z-index:3}
+.sheet td.pdf-char-invalid input,.sheet td.pdf-char-invalid textarea,.sheet td.pdf-char-invalid select,.sheet td.pdf-char-invalid .currency-input,.sheet td.pdf-char-invalid .lead-time-input{background:#fff0f1!important}
