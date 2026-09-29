@@ -55,11 +55,42 @@ export async function quotationXlsx(q:StoredQuotation){
 }
 
 type PdfCtx={page:PDFPage;regular:PDFFont;bold:PDFFont};
+
+// pdf-lib's built-in Helvetica fonts use WinAnsi encoding. A single unsupported
+// Unicode character (for example Korean/Hangul or emoji) would otherwise throw
+// and abort the entire PDF export. Keep the database value untouched and only
+// make a display-safe copy for the PDF renderer.
+const PDF_CHAR_FALLBACKS:Record<string,string>={
+ '\u00a0':' ', '\u2018':"'", '\u2019':"'", '\u201a':',', '\u201b':"'",
+ '\u201c':'\"', '\u201d':'\"', '\u201e':'\"', '\u201f':'\"',
+ '\u2013':'-', '\u2014':'-', '\u2212':'-', '\u2026':'...', '\u200b':'',
+ '\ufeff':''
+};
+const pdfCharSupportCache=new WeakMap<PDFFont,Map<string,boolean>>();
+function fontSupportCache(font:PDFFont){let cache=pdfCharSupportCache.get(font);if(!cache){cache=new Map<string,boolean>();pdfCharSupportCache.set(font,cache)}return cache}
+function pdfSafeText(font:PDFFont,value:unknown){
+ const source=String(value??'');
+ let out='';
+ for(const raw of source){
+  if(raw==='\n'||raw==='\r'||raw==='\t'){out+=raw==='\t'?' ':raw;continue}
+  const mapped=Object.prototype.hasOwnProperty.call(PDF_CHAR_FALLBACKS,raw)?PDF_CHAR_FALLBACKS[raw]:raw;
+  if(mapped!==raw){out+=mapped;continue}
+  const cache=fontSupportCache(font);
+  let supported=cache.get(raw);
+  if(supported===undefined){
+   try{font.widthOfTextAtSize(raw,1);supported=true}catch{supported=false}
+   cache.set(raw,supported);
+  }
+  out+=supported?raw:'?';
+ }
+ return out;
+}
 function pdfWrap(font:PDFFont,text:string,size:number,maxWidth:number){
+ const safeText=pdfSafeText(font,text);
  const width=(v:string)=>font.widthOfTextAtSize(v,size);
  const breakToken=(token:string)=>{const parts:string[]=[];let chunk='';for(const ch of token){const next=chunk+ch;if(chunk&&width(next)>maxWidth){parts.push(chunk);chunk=ch}else chunk=next}if(chunk)parts.push(chunk);return parts.length?parts:['']};
  const lines:string[]=[];
- const paragraphs=String(text||'').replace(/\r/g,'').split('\n');
+ const paragraphs=safeText.replace(/\r/g,'').split('\n');
  for(let pi=0;pi<paragraphs.length;pi++){
   const words=paragraphs[pi].split(/\s+/).filter(Boolean);let line='';
   for(const word of words){const pieces=width(word)>maxWidth?breakToken(word):[word];for(const piece of pieces){const next=(line+' '+piece).trim();if(line&&width(next)>maxWidth){lines.push(line);line=piece}else line=next;if(width(line)>maxWidth){const split=breakToken(line);lines.push(...split.slice(0,-1));line=split.at(-1)||''}}}
@@ -68,12 +99,47 @@ function pdfWrap(font:PDFFont,text:string,size:number,maxWidth:number){
  }
  return lines.length?lines:[''];
 }
-function drawLines(ctx:PdfCtx,lines:string[],x:number,y:number,size:number,maxWidth:number,bold=false,align:'left'|'center'|'right'='left',color=rgb(.12,.14,.17)){const font=bold?ctx.bold:ctx.regular;lines.forEach((line,i)=>{const w=font.widthOfTextAtSize(line,size);let xx=x;if(align==='center')xx=x+(maxWidth-w)/2;if(align==='right')xx=x+maxWidth-w;ctx.page.drawText(line,{x:xx,y:y-i*(size+2),size,font,color})})}
+function drawLines(ctx:PdfCtx,lines:string[],x:number,y:number,size:number,maxWidth:number,bold=false,align:'left'|'center'|'right'='left',color=rgb(.12,.14,.17)){const font=bold?ctx.bold:ctx.regular;lines.forEach((line,i)=>{const safeLine=pdfSafeText(font,line);const w=font.widthOfTextAtSize(safeLine,size);let xx=x;if(align==='center')xx=x+(maxWidth-w)/2;if(align==='right')xx=x+maxWidth-w;ctx.page.drawText(safeLine,{x:xx,y:y-i*(size+2),size,font,color})})}
+
+// Use the lightweight built-in Helvetica path for normal quotations. Only load
+// and embed a Korean Unicode font when Hangul is actually present in the data.
+const HANGUL_RE=/[\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF]/u;
+const KOREAN_FONT_URLS={
+ regular:'https://fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Regular.woff2',
+ bold:'https://fonts.gstatic.com/ea/notosanskr/v2/NotoSansKR-Bold.woff2'
+} as const;
+type KoreanFontBytes={regular:Uint8Array;bold:Uint8Array};
+let koreanFontBytesPromise:Promise<KoreanFontBytes>|null=null;
+function quotationHasHangul(q:StoredQuotation){try{return HANGUL_RE.test(JSON.stringify(q))}catch{return false}}
+async function fetchFontBytes(url:string){
+ const response=await fetch(url,{cache:'force-cache',signal:AbortSignal.timeout(12000)});
+ if(!response.ok)throw new Error(`Failed to load Korean PDF font (${response.status})`);
+ return new Uint8Array(await response.arrayBuffer());
+}
+async function koreanFontBytes(){
+ if(!koreanFontBytesPromise){
+  koreanFontBytesPromise=Promise.all([fetchFontBytes(KOREAN_FONT_URLS.regular),fetchFontBytes(KOREAN_FONT_URLS.bold)])
+   .then(([regular,bold])=>({regular,bold}))
+   .catch(error=>{koreanFontBytesPromise=null;throw error});
+ }
+ return koreanFontBytesPromise;
+}
+async function quotationPdfFonts(pdf:PDFDocument,q:StoredQuotation){
+ if(!quotationHasHangul(q)){
+  return {regular:await pdf.embedFont(StandardFonts.Helvetica),bold:await pdf.embedFont(StandardFonts.HelveticaBold),usesKoreanFont:false};
+ }
+ const fontkitModule=await import('@pdf-lib/fontkit');
+ pdf.registerFontkit(fontkitModule.default);
+ const bytes=await koreanFontBytes();
+ const regular=await pdf.embedFont(bytes.regular,{subset:true});
+ const bold=await pdf.embedFont(bytes.bold,{subset:true});
+ return {regular,bold,usesKoreanFont:true};
+}
 
 export async function quotationPdf(q:StoredQuotation){
  const c=q.content;
  const pdf=await PDFDocument.create();
- const regular=await pdf.embedFont(StandardFonts.Helvetica),bold=await pdf.embedFont(StandardFonts.HelveticaBold);
+ const {regular,bold}=await quotationPdfFonts(pdf,q);
  const A4:[number,number]=[595.28,841.89],margin=32;
  const red=rgb(.78,0,.24),text=rgb(.12,.14,.17),muted=rgb(.35,.39,.45),line=rgb(.84,.86,.89),headerFill=rgb(.955,.96,.968),zebra=rgb(.982,.985,.99);
  const logo=await signatureData('/serveone-logo.png');
