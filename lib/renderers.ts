@@ -142,9 +142,9 @@ export async function quotationPdf(q:StoredQuotation){
  let y=632;
  const cols=[
   {k:'no',h:'No',w:17,a:'left'},
-  {k:'code',h:'Code',w:32,a:'left'},
+  {k:'code',h:'Code',w:40,a:'left'},
   {k:'item',h:'Item / Description',w:70,a:'left'},
-  {k:'spec',h:'Specification',w:108,a:'left'},
+  {k:'spec',h:'Specification',w:100,a:'left'},
   {k:'brand',h:'Brand',w:36,a:'center'},
   {k:'user',h:'User',w:27,a:'left'},
   {k:'lead',h:'Lead Time',w:38,a:'center'},
