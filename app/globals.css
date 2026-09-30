@@ -682,3 +682,31 @@ input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!impor
 .item-char-warning{position:sticky;left:0;top:0;z-index:8;padding:9px 12px;background:#fff0f1;border-bottom:1px solid #e8a6ad;color:#9f1f2e;font-size:11px;font-weight:700}
 .sheet td.pdf-char-invalid{background:#fff0f1!important;box-shadow:inset 0 0 0 2px #d64252!important;z-index:3}
 .sheet td.pdf-char-invalid input,.sheet td.pdf-char-invalid textarea,.sheet td.pdf-char-invalid select,.sheet td.pdf-char-invalid .currency-input,.sheet td.pdf-char-invalid .lead-time-input{background:#fff0f1!important}
+
+
+/* V54: trim-friendly item display and accounting-style currency alignment in Quotation History. */
+.quotation-sheet td.code-cell{text-align:left!important;white-space:normal!important;overflow-wrap:anywhere!important}
+.quotation-sheet td.currency-history-cell{padding:0!important;text-align:left!important;font-variant-numeric:tabular-nums}
+.quotation-sheet td.currency-history-cell .history-currency{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:10px;width:100%;min-height:100%;padding:9px}
+.quotation-sheet td.currency-history-cell .history-currency span{justify-self:start;color:#26364c;font-weight:400;white-space:nowrap}
+.quotation-sheet td.currency-history-cell .history-currency b{justify-self:end;text-align:right;color:#26364c;font-weight:400;white-space:nowrap}
+
+/* Quotation History reload action: always visible on zebra/white rows */
+.quotation-sheet .reload-col .reload-icon,
+.selection-history .reload-col .reload-icon{
+  background:var(--blue)!important;
+  color:#fff!important;
+  border-color:var(--blue)!important;
+}
+.quotation-sheet .reload-col .reload-icon:hover,
+.selection-history .reload-col .reload-icon:hover{
+  background:var(--blue2)!important;
+  color:#fff!important;
+  border-color:var(--blue2)!important;
+}
+
+/* V55: compact Brand, Lead Time, Qty, and UOM columns in Quotation History only. */
+.quotation-sheet td:nth-child(13),.quotation-sheet th:nth-child(13){min-width:72px!important;width:72px!important}
+.quotation-sheet td:nth-child(15),.quotation-sheet th:nth-child(15){min-width:88px!important;width:88px!important;text-align:center!important}
+.quotation-sheet td:nth-child(16),.quotation-sheet th:nth-child(16){min-width:68px!important;width:68px!important;text-align:center!important}
+.quotation-sheet td:nth-child(17),.quotation-sheet th:nth-child(17){min-width:58px!important;width:58px!important;text-align:center!important}
