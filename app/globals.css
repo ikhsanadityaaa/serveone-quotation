@@ -722,3 +722,38 @@ input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!impor
 .quotation-sheet td:nth-child(20),.quotation-sheet th:nth-child(20){min-width:170px!important;width:170px!important;max-width:170px!important}
 .quotation-sheet td:nth-child(21),.quotation-sheet th:nth-child(21){min-width:190px!important}
 .quotation-sheet td.total-amount-cell{vertical-align:middle!important;background:inherit}
+
+/* V59: floating Quotation History header mirrors the real header cell geometry exactly. */
+.quotation-floating-header-row{position:relative;width:100%;overflow:visible}
+.quotation-floating-header-cell{
+  position:absolute;
+  top:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:9px;
+  border-right:1px solid #dfe5eb;
+  border-bottom:1px solid #d8e0e8;
+  background:#e9eff7;
+  color:#42526a;
+  font-size:11px;
+  font-weight:700;
+  line-height:1.2;
+  white-space:nowrap;
+  overflow:hidden;
+  box-sizing:border-box;
+}
+.quotation-floating-header-cell.select-col,
+.quotation-floating-header-cell.reload-col,
+.quotation-floating-header-cell.rowno,
+.quotation-floating-header-cell.latest-quo-col,
+.quotation-floating-header-cell.qty-head{ text-align:center!important; }
+.quotation-floating-header-cell.history-pinned-cell{
+  z-index:3;
+  background:#e9eff7!important;
+  box-shadow:1px 0 0 #c7d1dd,8px 0 14px -14px rgba(28,45,74,.55);
+}
+.quotation-floating-header-cell .history-header-inner{height:100%}
+.quotation-floating-header-cell:hover .history-pin-button{opacity:1}
+.quotation-floating-header-cell.select-col input[type=checkbox]{display:block;margin:0 auto;width:15px;height:15px}
+.quotation-floating-header{border-left:0!important;border-right:0!important}

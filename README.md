@@ -147,3 +147,7 @@ No new SQL is required for V42. V41 revision SQL is still required if it has not
 - Quotation History Qty header is centered.
 - Data-column headers can be pinned one at a time. The pinned column alone stays at the far left while horizontal scrolling; earlier columns continue scrolling away.
 - Pinned body cells keep the quotation-group zebra background so overlapping content remains opaque and readable.
+
+## V59
+- Quotation History floating header now mirrors the live table header's exact cell positions and widths instead of rebuilding column widths in a second table.
+- Header alignment stays synchronized during horizontal scroll, browser scaling, compact column widths, and single-column pinning.
