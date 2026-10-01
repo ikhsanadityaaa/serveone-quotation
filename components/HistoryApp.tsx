@@ -12,6 +12,13 @@ import type {QuoteItem,StoredQuotation} from '@/lib/types';
 const idr=new Intl.NumberFormat('id-ID');
 const baseKey=(q:StoredQuotation)=>String(q.base_quotation_no||q.quotation_no.replace(/\/REV-\d+$/i,''));
 const revNo=(q:StoredQuotation)=>Number(q.revision_no||0);
+const historyNewestFirst=(a:StoredQuotation,b:StoredQuotation)=>{
+ const dateCompare=String(b.quotation_date||'').localeCompare(String(a.quotation_date||''));
+ if(dateCompare!==0)return dateCompare;
+ const quotationCompare=String(b.quotation_no||'').localeCompare(String(a.quotation_no||''),undefined,{numeric:true,sensitivity:'base'});
+ if(quotationCompare!==0)return quotationCompare;
+ return String(b.created_at||'').localeCompare(String(a.created_at||''));
+};
 
 const compactAmount=(value:number)=>{
  if(!Number.isFinite(value)) return '0';
@@ -45,7 +52,7 @@ export default function HistoryApp(){
  const baseForClients=useMemo(()=>rows.filter(r=>passSearch(r)&&(sales.length===0||sales.includes(r.sales_name))),[rows,searchTerms.join('|'),sales.join('|')]);
  const salesOptions=useMemo<string[]>(()=>[...new Set<string>(baseForSales.map(r=>String(r.sales_name||'')).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:'base'})),[baseForSales]);
  const clientOptions=useMemo<string[]>(()=>[...new Set<string>(baseForClients.map(r=>String(r.client_name||'')).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:'base'})),[baseForClients]);
- const filtered=useMemo(()=>rows.filter(r=>passSearch(r)&&(sales.length===0||sales.includes(r.sales_name))&&(clients.length===0||clients.includes(r.client_name))),[rows,searchTerms.join('|'),sales.join('|'),clients.join('|')]);
+ const filtered=useMemo(()=>rows.filter(r=>passSearch(r)&&(sales.length===0||sales.includes(r.sales_name))&&(clients.length===0||clients.includes(r.client_name))).sort(historyNewestFirst),[rows,searchTerms.join('|'),sales.join('|'),clients.join('|')]);
  const groupCounts=useMemo(()=>{const m=new Map<string,number>();for(const r of rows){const k=baseKey(r);m.set(k,(m.get(k)||0)+1)}return m},[rows]);
  const latestByBase=useMemo(()=>{const m=new Map<string,StoredQuotation>();for(const r of rows){const k=baseKey(r),cur=m.get(k);if(!cur||revNo(r)>revNo(cur)||(revNo(r)===revNo(cur)&&String(r.created_at)>String(cur.created_at)))m.set(k,r)}return m},[rows]);
  const matchedBases=useMemo(()=>new Set(filtered.map(baseKey)),[filtered]);
