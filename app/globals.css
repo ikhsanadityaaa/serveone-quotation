@@ -757,3 +757,44 @@ input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!impor
 .quotation-floating-header-cell:hover .history-pin-button{opacity:1}
 .quotation-floating-header-cell.select-col input[type=checkbox]{display:block;margin:0 auto;width:15px;height:15px}
 .quotation-floating-header{border-left:0!important;border-right:0!important}
+
+/* V60: Items floating header mirrors Quotation History and keeps real column geometry. */
+.items-floating-header{
+  position:fixed;
+  top:0;
+  z-index:95;
+  overflow:hidden;
+  background:#e9eff7;
+  border-bottom:1px solid #d8e0e8;
+  box-shadow:0 5px 12px rgba(28,45,74,.10);
+}
+.items-floating-header-row{position:relative;width:100%;overflow:visible}
+.items-floating-header-cell{
+  position:absolute;
+  top:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px;
+  border-right:1px solid #dfe5eb;
+  border-bottom:1px solid #d8e0e8;
+  background:#e9eff7;
+  color:#42526a;
+  font-size:11px;
+  font-weight:700;
+  line-height:1.2;
+  white-space:nowrap;
+  overflow:hidden;
+  box-sizing:border-box;
+}
+
+/* Keep the No header visually identical in Items and Quotation History. */
+.sheet thead th.rowno,
+.quotation-sheet thead th.rowno,
+.items-floating-header-cell.rowno,
+.quotation-floating-header-cell.rowno{
+  background:#e9eff7!important;
+  color:#42526a!important;
+  font-weight:700!important;
+  text-align:center!important;
+}

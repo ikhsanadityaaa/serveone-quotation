@@ -74,8 +74,29 @@ export default function SpreadsheetGrid({rows,setRows,uoms}:{rows:QuoteItem[];se
  const selectionRef=useRef(selection);selectionRef.current=selection;
  const pointerRef=useRef<{r:number;c:number;x:number;y:number;dragging:boolean;textEditing:boolean}|null>(null);
  const tableRef=useRef<HTMLTableElement>(null);
+ const sheetWrapRef=useRef<HTMLDivElement>(null);
+ const [floatingHeader,setFloatingHeader]=useState({visible:false,left:0,width:0,height:0,cells:[] as {left:number;width:number}[]});
  useEffect(()=>{let live=true;(async()=>{try{const r=await fetch('/api/item-users',{cache:'no-store'});if(!r.ok)return;const j=await r.json();if(!live||!Array.isArray(j.users))return;setUserHistory(current=>{const merged=[...current,...j.users].map(String).map(x=>x.trim()).filter(Boolean);return [...new Map(merged.map(x=>[x.toLowerCase(),x])).values()].slice(0,100)})}catch{}})();return()=>{live=false}},[]);
  useLayoutEffect(()=>{const frame=requestAnimationFrame(()=>{const heights=rows.map((_,r)=>{const tr=tableRef.current?.querySelector<HTMLTableRowElement>(`tr[data-item-row="${r}"]`);if(!tr)return 36;let max=36;tr.querySelectorAll<HTMLTextAreaElement>('textarea.auto-wrap').forEach(el=>{autoGrow(el);max=Math.max(max,Math.ceil(el.scrollHeight)+1)});return max});setRowHeights(prev=>prev.length===heights.length&&prev.every((x,i)=>x===heights[i])?prev:heights)});return()=>cancelAnimationFrame(frame)},[rows]);
+ useEffect(()=>{
+  const wrap=sheetWrapRef.current,table=tableRef.current,thead=table?.querySelector('thead');if(!wrap||!table||!thead)return;
+  let frame=0;
+  const update=()=>{
+   cancelAnimationFrame(frame);
+   frame=requestAnimationFrame(()=>{
+    const wrapRect=wrap.getBoundingClientRect(),tableRect=table.getBoundingClientRect(),headRect=thead.getBoundingClientRect();
+    const left=Math.max(0,wrapRect.left),right=Math.min(window.innerWidth,wrapRect.right),width=Math.max(0,right-left);
+    const height=headRect.height||0;
+    const visible=headRect.top<0&&tableRect.bottom>height&&width>0;
+    const cells=[...thead.querySelectorAll('th')].map(cell=>{const rect=cell.getBoundingClientRect();return {left:rect.left-left,width:rect.width}});
+    setFloatingHeader({visible,left,width,height,cells});
+   });
+  };
+  update();
+  const ro=typeof ResizeObserver!=='undefined'?new ResizeObserver(update):null;ro?.observe(wrap);ro?.observe(table);
+  wrap.addEventListener('scroll',update,{passive:true});window.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);
+  return()=>{cancelAnimationFrame(frame);ro?.disconnect();wrap.removeEventListener('scroll',update);window.removeEventListener('scroll',update);window.removeEventListener('resize',update)};
+ },[rows.length,charWarning]);
  const activateCell=(r:number,c:number)=>{setActive([r,c]);setSelection({r1:r,c1:c,r2:r,c2:c})};
  const flagUnsupported=(r:number,c:number,removed:string[])=>{if(!removed.length)return;const id=`${r}-${c}`;setInvalidCells(current=>new Set(current).add(id));setCharWarning(`Unsupported PDF character${removed.length>1?'s':''} removed: ${removed.map(ch=>`“${ch}”`).join(', ')}. Use Latin letters, numbers, and common punctuation/symbols.`);if(warningTimer.current)clearTimeout(warningTimer.current);warningTimer.current=setTimeout(()=>setCharWarning(''),4500);if(invalidTimers.current[id])clearTimeout(invalidTimers.current[id]);invalidTimers.current[id]=setTimeout(()=>{setInvalidCells(current=>{const next=new Set(current);next.delete(id);return next});delete invalidTimers.current[id]},3000)};
  useEffect(()=>()=>{Object.values(invalidTimers.current).forEach(timer=>clearTimeout(timer));if(warningTimer.current)clearTimeout(warningTimer.current)},[]);
@@ -142,5 +163,8 @@ export default function SpreadsheetGrid({rows,setRows,uoms}:{rows:QuoteItem[];se
    {activeCell&&<span className="fill-handle" title="Drag down to copy" onPointerDown={e=>startFill(e,r,c)} onPointerMove={moveFill}/>} 
   </td>
  };
- return <div className="sheet-wrap">{charWarning&&<div className="item-char-warning" role="alert">{charWarning}</div>}<datalist id="item-user-history">{userHistory.map(x=><option key={x} value={x}/>)}</datalist><div className="sheet-canvas"><table ref={tableRef} className={`sheet ${rangeDragging?'range-selecting':''}`}><colgroup><col className="col-no"/><col className="col-code"/><col className="col-item"/><col className="col-spec"/><col className="col-brand"/><col className="col-user"/><col className="col-lead"/><col className="col-qty"/><col className="col-uom"/><col className="col-price"/><col className="col-amount"/><col className="col-remarks"/></colgroup><thead><tr><th className="rowno">No</th>{labels.slice(0,-1).map(x=><th key={x}>{x}</th>)}<th>Amount</th><th>Remarks</th></tr></thead><tbody>{rows.map((row,r)=><tr key={r} data-item-row={r} style={{height:rowHeights[r]?`${rowHeights[r]}px`:undefined}}><td className="rowno">{r+1}</td>{cols.slice(0,-1).map((k,c)=>cell(row,r,k,c))}<td className={`amount-cell ${amountInSelection(r)?'range-selected':''}`}><div className="amount-inner"><span>IDR</span><b>{idr.format((row.qty||0)*(row.unitPrice||0))}</b></div></td>{cell(row,r,'remarks',cols.length-1)}</tr>)}</tbody></table></div><div className="sheet-hint">Paste directly from Excel. Lead Time, Qty, and Unit Price accept numbers only. Drag across cells to select a range, then press Delete/Backspace to clear it. Drag the blue handle downward to repeat a value, including Lead Time and UOM.</div></div>
+ const itemHeaders=['No',...labels.slice(0,-1),'Amount','Remarks'];
+ return <>{<div ref={sheetWrapRef} className="sheet-wrap">{charWarning&&<div className="item-char-warning" role="alert">{charWarning}</div>}<datalist id="item-user-history">{userHistory.map(x=><option key={x} value={x}/>)}</datalist><div className="sheet-canvas"><table ref={tableRef} className={`sheet ${rangeDragging?'range-selecting':''}`}><colgroup><col className="col-no"/><col className="col-code"/><col className="col-item"/><col className="col-spec"/><col className="col-brand"/><col className="col-user"/><col className="col-lead"/><col className="col-qty"/><col className="col-uom"/><col className="col-price"/><col className="col-amount"/><col className="col-remarks"/></colgroup><thead><tr><th className="rowno">No</th>{labels.slice(0,-1).map(x=><th key={x}>{x}</th>)}<th>Amount</th><th>Remarks</th></tr></thead><tbody>{rows.map((row,r)=><tr key={r} data-item-row={r} style={{height:rowHeights[r]?`${rowHeights[r]}px`:undefined}}><td className="rowno">{r+1}</td>{cols.slice(0,-1).map((k,c)=>cell(row,r,k,c))}<td className={`amount-cell ${amountInSelection(r)?'range-selected':''}`}><div className="amount-inner"><span>IDR</span><b>{idr.format((row.qty||0)*(row.unitPrice||0))}</b></div></td>{cell(row,r,'remarks',cols.length-1)}</tr>)}</tbody></table></div><div className="sheet-hint">Paste directly from Excel. Lead Time, Qty, and Unit Price accept numbers only. Drag across cells to select a range, then press Delete/Backspace to clear it. Drag the blue handle downward to repeat a value, including Lead Time and UOM.</div></div>}
+ {floatingHeader.visible&&<div className="items-floating-header" style={{left:floatingHeader.left,width:floatingHeader.width,height:floatingHeader.height}}><div className="items-floating-header-row" style={{height:floatingHeader.height}}>{itemHeaders.map((label,i)=>{const geometry=floatingHeader.cells[i];return <div key={`${label}-${i}`} className={`items-floating-header-cell ${i===0?'rowno':''}`} style={geometry?{left:geometry.left,width:geometry.width,height:floatingHeader.height}:undefined}>{label}</div>})}</div></div>}
+ </>
 }
