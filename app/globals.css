@@ -798,3 +798,9 @@ input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!impor
   font-weight:700!important;
   text-align:center!important;
 }
+
+/* V61: vertically center table values without changing horizontal alignment. */
+.selection-history tbody td,
+.sales-scroll .master-grid tbody td.rowno{
+  vertical-align:middle!important;
+}
