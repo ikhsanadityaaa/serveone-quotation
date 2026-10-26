@@ -636,7 +636,7 @@ input[type=checkbox]:focus,input[type=checkbox]:focus-visible{outline:none!impor
 .quotation-scroll-shell{position:relative;width:100%;min-width:0}
 
 /* Quotation List body alignment: headers remain centered. */
-.quotation-sheet td.item-desc-cell,.quotation-sheet td.spec-cell{text-align:left!important;white-space:normal!important;overflow-wrap:anywhere!important;vertical-align:top!important}
+.quotation-sheet td.item-desc-cell,.quotation-sheet td.spec-cell{text-align:left!important;white-space:normal!important;overflow-wrap:anywhere!important;vertical-align:middle!important}
 .quotation-sheet td.brand-cell{text-align:center!important}
 .quotation-sheet td.qty-cell{text-align:center!important;font-variant-numeric:tabular-nums}
 .quotation-sheet td.amount-value{text-align:right!important;font-variant-numeric:tabular-nums}
